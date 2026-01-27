@@ -657,6 +657,60 @@
 
         function clean(text) { return text ? text.replace(/\s+/g, '') : ""; }
 
+        function parseTime(text) {
+            if (!text) return { h: 0, m: 0, isAm: false, isPm: false, valid: false };
+            const s = text.replace(/\s+/g, '');
+
+            let isAm = s.includes("오전") || s.toLowerCase().includes("am");
+            let isPm = s.includes("오후") || s.toLowerCase().includes("pm");
+
+            const nums = s.match(/\d+/g);
+            if (!nums || nums.length === 0) return { h: 0, m: 0, isAm, isPm, valid: false };
+
+            let h = parseInt(nums[0], 10);
+            let m = nums.length > 1 ? parseInt(nums[1], 10) : 0;
+
+            // Handle 24h -> 12h logic
+            if (!isAm && !isPm) {
+                if (h >= 12) {
+                    if (h > 12 && h < 24) { h -= 12; isPm = true; }
+                    else if (h === 12) { isPm = true; }
+                    else if (h === 24) { h = 12; isAm = true; }
+                }
+            } else {
+                if (h > 12) h -= 12;
+            }
+
+            return { h, m, isAm: isAm || (!isAm && !isPm && h < 12), isPm, valid: true };
+        }
+
+        function formatTime(text, forceMinutes = false) {
+            const parsed = parseTime(text);
+            if (!parsed.valid) return text || ""; // Return original if parse failed
+
+            let prefix = "";
+            if (parsed.isAm) prefix = "오전"; // Default to 오전 if unknown? Or just implied.
+            // Logic above sets either isAm or isPm or neither.
+            // Let's refine the prefix logic based on the original function's behavior
+            // Original: let prefix = ""; if(isAm) ... if(isPm) ...
+
+            // Re-eval prefix based on parsed state
+            if (parsed.isPm) prefix = "오후";
+            else prefix = "오전"; // Default to 오전 logic was implicit in 24h conversion? 
+            // Wait, original: if (!isAm && !isPm) ... else ...
+            // Let's stick to what was parsed.
+
+            // Simply:
+            const { h, m, isPm } = parsed;
+            const p = isPm ? "오후" : "오전";
+
+            if (m === 0 && !forceMinutes) {
+                return `${p} ${h}시`;
+            } else {
+                return `${p} ${h}:${String(m).padStart(2, '0')}`;
+            }
+        }
+
         function formatDate(dateStr) {
             if (!dateStr) return "";
             const [y, m, d] = dateStr.split('-').map(Number);
@@ -667,8 +721,8 @@
             return (target.getTime() === today.getTime()) ? `${d}일(오늘)` : `${d}일(${weekDays[target.getDay()]})`;
         }
 
-        function combineDateTime(dateId, timeId) {
-            const timeVal = clean(document.getElementById(timeId).value);
+        function combineDateTime(dateId, timeId, forceMinutes = false) {
+            const timeVal = formatTime(document.getElementById(timeId).value, forceMinutes);
             if (!timeVal) return "";
             return `${formatDate(document.getElementById(dateId).value)}${timeVal}`;
         }
@@ -819,9 +873,23 @@
                     }
                 });
                 let header = `[${headerText}]`;
-                let wiro = combineDateTime('date_wiro_church', 'time_wiro_church');
-                let ipgwan = combineDateTime('date_ipgwan', 'time_ipgwan');
-                let sendoff = combineDateTime('date_sendoff', 'time_sendoff');
+
+                // Smart Time Formatting Logic
+                const rawTimes = [
+                    document.getElementById('time_wiro_church').value,
+                    document.getElementById('time_ipgwan').value,
+                    document.getElementById('time_sendoff').value
+                ];
+                // Check if any valid time has minutes > 0
+                const hasMinutes = rawTimes.some(t => {
+                    const parsed = parseTime(t);
+                    return parsed.valid && parsed.m > 0;
+                });
+
+                let wiro = combineDateTime('date_wiro_church', 'time_wiro_church', hasMinutes);
+                let ipgwan = combineDateTime('date_ipgwan', 'time_ipgwan', hasMinutes);
+                let sendoff = combineDateTime('date_sendoff', 'time_sendoff', hasMinutes);
+
                 if (wiro) body += `/위로:${wiro}교회출`;
                 if (ipgwan) body += `/입관:${ipgwan}교회출`;
                 if (sendoff) body += `/천국환송:${sendoff}교회출`;
@@ -948,20 +1016,28 @@
 
             // 위로
             const wDate = document.getElementById('s2_date_wiro').value;
-            const wTime = document.getElementById('s2_time_wiro').value;
+            const wRawTime = document.getElementById('s2_time_wiro').value;
             const wChurch = document.getElementById('s2_chk_wiro').checked ? " 교회출" : "";
-            if (wDate && wTime) body += `위로: ${formatLongDate(wDate)} ${wTime}${wChurch}\n`;
 
             // 입관
             const iDate = document.getElementById('s2_date_ip').value;
-            const iTime = document.getElementById('s2_time_ip').value;
+            const iRawTime = document.getElementById('s2_time_ip').value;
             const iChurch = document.getElementById('s2_chk_ip').checked ? " 교회출" : "";
-            if (iDate && iTime) body += `입관: ${formatLongDate(iDate)} ${iTime}${iChurch}\n`;
 
             // 발인/천국환송
             const bDate = document.getElementById('s2_date_bal').value;
-            const bTime = document.getElementById('s2_time_bal').value;
+            const bRawTime = document.getElementById('s2_time_bal').value;
             const bChurch = document.getElementById('s2_chk_bal').checked ? " 교회출" : "";
+
+            // Smart Formatting Check
+            const rawTimes = [wRawTime, iRawTime, bRawTime];
+            const hasMinutes = rawTimes.some(t => {
+                const parsed = parseTime(t);
+                return parsed.valid && parsed.m > 0;
+            });
+
+            if (wDate && wRawTime) body += `위로: ${formatLongDate(wDate)} ${formatTime(wRawTime, hasMinutes)}${wChurch}\n`;
+            if (iDate && iRawTime) body += `입관: ${formatLongDate(iDate)} ${formatTime(iRawTime, hasMinutes)}${iChurch}\n`;
 
             // 모드에 따라 라벨 변경 (교회장: 천국환송, 교구장: 발인) -> 근데 사용자가 그냥 입력한거라.. 
             // 그냥 '발인' or '천국환송' 라벨을 붙여야 하나? 샘플엔 '발인', '천국환송' 다름.
@@ -970,7 +1046,7 @@
             const mode = document.getElementById('mode').value;
             const balLabel = (mode === 'church') ? "천국환송" : "발인";
 
-            if (bDate && bTime) body += `${balLabel}: ${formatLongDate(bDate)} ${bTime}${bChurch}\n`;
+            if (bDate && bRawTime) body += `${balLabel}: ${formatLongDate(bDate)} ${formatTime(bRawTime, hasMinutes)}${bChurch}\n`;
 
             body += `빈소: ${binso}\n`;
             if (jangji) body += `장지: ${jangji}`;
