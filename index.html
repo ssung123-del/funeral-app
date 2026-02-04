@@ -340,13 +340,10 @@
             border-color: #bbf7d0;
         }
 
-        /* 추천안 강조 */
         .result-box.warning {
             background: #fffaf0;
             border-color: #fce8b2;
         }
-
-        /* 원본 경고 */
 
         .box-header {
             display: flex;
@@ -465,10 +462,8 @@
             </div>
         </div>
 
-        <div
-            style="background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
-            <span class="section-label">이름 및 직분 <span class="auto-tag" id="ko-tag" style="display:none;">* '故'
-                    자동추가</span></span>
+        <div style="background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
+            <span class="section-label">이름 및 직분 <span class="auto-tag" id="ko-tag" style="display:none;">* '故' 자동추가</span></span>
             <div class="row-grid">
                 <div class="input-wrapper col-7" style="padding: 8px 12px;">
                     <input type="text" id="name1" class="custom-input" placeholder="이름 (예: 홍길동)">
@@ -524,10 +519,8 @@
             <div id="group-wiro" class="input-group">
                 <span class="section-label">위로예배</span>
                 <div class="datetime-grid">
-                    <div class="input-wrapper date-col"><input type="date" id="date_wiro_district" class="custom-input">
-                    </div>
-                    <div class="input-wrapper time-col"><input type="text" id="time_wiro_district" class="custom-input"
-                            placeholder="시간 (예: 오후2시)"></div>
+                    <div class="input-wrapper date-col"><input type="date" id="date_wiro_district" class="custom-input"></div>
+                    <div class="input-wrapper time-col"><input type="text" id="time_wiro_district" class="custom-input" placeholder="시간 (예: 오후2시)"></div>
                 </div>
             </div>
             <div id="group-individual" class="input-group hidden">
@@ -544,20 +537,17 @@
             <div class="section-label" style="margin-top:8px;">위로예배</div>
             <div class="datetime-grid">
                 <div class="input-wrapper date-col"><input type="date" id="date_wiro_church" class="custom-input"></div>
-                <div class="input-wrapper time-col"><input type="text" id="time_wiro_church" class="custom-input"
-                        placeholder="시간 (예: 오후4시)"></div>
+                <div class="input-wrapper time-col"><input type="text" id="time_wiro_church" class="custom-input" placeholder="시간 (예: 오후4시)"></div>
             </div>
             <div class="section-label">입관예배</div>
             <div class="datetime-grid">
                 <div class="input-wrapper date-col"><input type="date" id="date_ipgwan" class="custom-input"></div>
-                <div class="input-wrapper time-col"><input type="text" id="time_ipgwan" class="custom-input"
-                        placeholder="시간 (예: 오후2시)"></div>
+                <div class="input-wrapper time-col"><input type="text" id="time_ipgwan" class="custom-input" placeholder="시간 (예: 오후2시)"></div>
             </div>
             <div class="section-label">천국환송(발인)</div>
             <div class="datetime-grid">
                 <div class="input-wrapper date-col"><input type="date" id="date_sendoff" class="custom-input"></div>
-                <div class="input-wrapper time-col"><input type="text" id="time_sendoff" class="custom-input"
-                        placeholder="시간 (예: 오전6시)"></div>
+                <div class="input-wrapper time-col"><input type="text" id="time_sendoff" class="custom-input" placeholder="시간 (예: 오전6시)"></div>
             </div>
         </div>
 
@@ -572,9 +562,7 @@
 
         <div class="result-container" id="resultArea"></div>
 
-        <!-- Step 2: 교우소식 상세 입력 -->
-        <div id="step2-section" class="hidden"
-            style="margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px;">
+        <div id="step2-section" class="hidden" style="margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px;">
             <h3 style="font-size: 18px; color: var(--primary); margin-bottom: 15px;">교우소식 상세 입력</h3>
 
             <div class="input-group">
@@ -588,8 +576,7 @@
                 <span class="section-label">위로예배</span>
                 <div class="datetime-grid">
                     <div class="input-wrapper date-col"><input type="date" id="s2_date_wiro" class="custom-input"></div>
-                    <div class="input-wrapper time-col"><input type="text" id="s2_time_wiro" class="custom-input"
-                            placeholder="오전 10:00"></div>
+                    <div class="input-wrapper time-col"><input type="text" id="s2_time_wiro" class="custom-input" placeholder="오전 10:00"></div>
                 </div>
                 <div style="text-align: right;">
                     <label style="font-size:13px; color:var(--text); cursor:pointer;">
@@ -602,8 +589,7 @@
                 <span class="section-label">입관예배</span>
                 <div class="datetime-grid">
                     <div class="input-wrapper date-col"><input type="date" id="s2_date_ip" class="custom-input"></div>
-                    <div class="input-wrapper time-col"><input type="text" id="s2_time_ip" class="custom-input"
-                            placeholder="오전 10:00"></div>
+                    <div class="input-wrapper time-col"><input type="text" id="s2_time_ip" class="custom-input" placeholder="오전 10:00"></div>
                 </div>
                 <div style="text-align: right;">
                     <label style="font-size:13px; color:var(--text); cursor:pointer;">
@@ -616,8 +602,7 @@
                 <span class="section-label">발인 / 천국환송</span>
                 <div class="datetime-grid">
                     <div class="input-wrapper date-col"><input type="date" id="s2_date_bal" class="custom-input"></div>
-                    <div class="input-wrapper time-col"><input type="text" id="s2_time_bal" class="custom-input"
-                            placeholder="오전 5:30"></div>
+                    <div class="input-wrapper time-col"><input type="text" id="s2_time_bal" class="custom-input" placeholder="오전 5:30"></div>
                 </div>
                 <div style="text-align: right;">
                     <label style="font-size:13px; color:var(--text); cursor:pointer;">
@@ -670,7 +655,6 @@
             let h = parseInt(nums[0], 10);
             let m = nums.length > 1 ? parseInt(nums[1], 10) : 0;
 
-            // Handle 24h -> 12h logic
             if (!isAm && !isPm) {
                 if (h >= 12) {
                     if (h > 12 && h < 24) { h -= 12; isPm = true; }
@@ -684,30 +668,18 @@
             return { h, m, isAm: isAm || (!isAm && !isPm && h < 12), isPm, valid: true };
         }
 
+        // *** 수정된 부분: 오전/오후 뒤의 공백 제거 ***
         function formatTime(text, forceMinutes = false) {
             const parsed = parseTime(text);
-            if (!parsed.valid) return text || ""; // Return original if parse failed
+            if (!parsed.valid) return text || "";
 
-            let prefix = "";
-            if (parsed.isAm) prefix = "오전"; // Default to 오전 if unknown? Or just implied.
-            // Logic above sets either isAm or isPm or neither.
-            // Let's refine the prefix logic based on the original function's behavior
-            // Original: let prefix = ""; if(isAm) ... if(isPm) ...
-
-            // Re-eval prefix based on parsed state
-            if (parsed.isPm) prefix = "오후";
-            else prefix = "오전"; // Default to 오전 logic was implicit in 24h conversion? 
-            // Wait, original: if (!isAm && !isPm) ... else ...
-            // Let's stick to what was parsed.
-
-            // Simply:
             const { h, m, isPm } = parsed;
             const p = isPm ? "오후" : "오전";
 
             if (m === 0 && !forceMinutes) {
-                return `${p} ${h}시`;
+                return `${p}${h}시`; // 공백 제거
             } else {
-                return `${p} ${h}:${String(m).padStart(2, '0')}`;
+                return `${p}${h}:${String(m).padStart(2, '0')}`; // 공백 제거
             }
         }
 
@@ -813,6 +785,7 @@
         </div>`;
         }
 
+        // *** 수정된 부분: 생성 시 불필요한 공백 제거 ***
         function generate() {
             const mode = document.getElementById('mode').value;
             const mainDistrict = clean(document.getElementById('district').value).replace(/교구/g, '');
@@ -832,12 +805,11 @@
 
             let fullText = "";
 
-            // --- 1. 텍스트 생성 ---
             if (mode === 'district') {
                 let header = `[교구장-${mainDistrict}]`;
                 let rel = clean(document.getElementById('relation').value).replace(/소천/g, '');
                 let nameStr = buildPersonName(mName, mTitle, mSpouse, mSpouseTitle);
-                let body = `${nameStr}${rel}소천`;
+                let body = `${nameStr}${rel}소천`; // 띄어쓰기 제거
 
                 const isIndividual = document.getElementById('isIndividual').checked;
                 if (isIndividual) {
@@ -847,7 +819,7 @@
                 } else {
                     let wiro = combineDateTime('date_wiro_district', 'time_wiro_district');
                     if (!wiro) { alert('위로예배 시간을 입력해주세요.'); return; }
-                    body += `/위로:${wiro}교회출`;
+                    body += `/위로:${wiro}교회출`; // 띄어쓰기 제거
                 }
                 fullText = `${header}${body}/${location}`;
 
@@ -874,13 +846,11 @@
                 });
                 let header = `[${headerText}]`;
 
-                // Smart Time Formatting Logic
                 const rawTimes = [
                     document.getElementById('time_wiro_church').value,
                     document.getElementById('time_ipgwan').value,
                     document.getElementById('time_sendoff').value
                 ];
-                // Check if any valid time has minutes > 0
                 const hasMinutes = rawTimes.some(t => {
                     const parsed = parseTime(t);
                     return parsed.valid && parsed.m > 0;
@@ -896,7 +866,6 @@
                 fullText = `${header}${body}/${location}`;
             }
 
-            // --- 2. 결과 표시 로직 ---
             let fullBytes = getByteLength(fullText);
             let resultHTML = "";
 
@@ -916,7 +885,6 @@
                 resultHTML = createResultBoxHTML("생성 결과", fullText, fullBytes, "normal", "res1");
             }
 
-            // Step 2 진입 버튼 추가
             resultHTML += `
             <div style="margin-top:20px; text-align:center;">
                 <p style="font-size:13px; color:#888; margin-bottom:10px;">👇 추가 정보를 넣어 교우소식을 완성하세요</p>
@@ -938,12 +906,11 @@
             });
         }
 
-        // --- Step 2 Logic ---
+        // --- Step 2 Logic (여기는 가독성을 위해 공백 유지 가능) ---
         function startStep2() {
             const section = document.getElementById('step2-section');
             section.classList.remove('hidden');
 
-            // 1. 헤더 자동 완성
             const mode = document.getElementById('mode').value;
             const mainDistrict = clean(document.getElementById('district').value).replace(/교구/g, '');
             let mName = clean(document.getElementById('name1').value);
@@ -954,32 +921,22 @@
 
             if (mode === 'district') {
                 header = `[교구장-${mainDistrict}] ${buildPersonName(mName, mTitle, mSpouse, mSpouseTitle)} ${clean(document.getElementById('relation').value)} 소천`;
-                // 날짜/시간 프리셋
                 copyDateTimeToStep2('date_wiro_district', 'time_wiro_district', 's2_date_wiro', 's2_time_wiro');
-
-                // 교구장: 위로는 켜고, 입관/발인은 끔 (입력 안했으므로)
                 document.getElementById('s2_chk_wiro').checked = true;
                 document.getElementById('s2_chk_ip').checked = false;
                 document.getElementById('s2_chk_bal').checked = false;
-
             } else {
                 let names = `故${mName}${mTitle}(${mSpouse}${mSpouseTitle})`;
-                // 교회장은 소천자 정보가 복잡할 수 있어서 일단 단순화
                 header = `[교회장-${mainDistrict}] ${names} 소천`;
                 copyDateTimeToStep2('date_wiro_church', 'time_wiro_church', 's2_date_wiro', 's2_time_wiro');
                 copyDateTimeToStep2('date_ipgwan', 'time_ipgwan', 's2_date_ip', 's2_time_ip');
                 copyDateTimeToStep2('date_sendoff', 'time_sendoff', 's2_date_bal', 's2_time_bal');
-
-                // 교회장은 모든 예배/일정에 교회출발 기본 체크
                 document.getElementById('s2_chk_wiro').checked = true;
                 document.getElementById('s2_chk_ip').checked = true;
                 document.getElementById('s2_chk_bal').checked = true;
             }
             document.getElementById('s2_header').value = header;
-
-            // 2. 빈소 복사
             document.getElementById('s2_binso').value = document.getElementById('location').value;
-
             section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -1003,56 +960,52 @@
             return `${Number(m)}월 ${Number(d)}일(${day})`;
         }
 
-        function generateStep2() {
-            // [교구장-강남] 류양열안수집사(조명옥집사) 부친 소천
-            // 위로: 1월 23일(금) 오전 10:00 교회출
-            // 입관: ...
+        // 교우소식 상세 버전용 시간 포맷 (한 칸 공백 허용)
+        function formatTimeLong(text, forceMinutes = false) {
+            const parsed = parseTime(text);
+            if (!parsed.valid) return text || "";
+            const { h, m, isPm } = parsed;
+            const p = isPm ? "오후" : "오전";
+            if (m === 0 && !forceMinutes) return `${p} ${h}시`;
+            else return `${p} ${h}:${String(m).padStart(2, '0')}`;
+        }
 
+        function generateStep2() {
             const header = document.getElementById('s2_header').value;
             const binso = document.getElementById('s2_binso').value;
             const jangji = document.getElementById('s2_jangji').value;
 
             let body = "";
-
-            // 위로
             const wDate = document.getElementById('s2_date_wiro').value;
             const wRawTime = document.getElementById('s2_time_wiro').value;
-            const wChurch = document.getElementById('s2_chk_wiro').checked ? " 교회출" : "";
+            const wChurch = document.getElementById('s2_chk_wiro').checked ? " 교회출발" : "";
 
-            // 입관
             const iDate = document.getElementById('s2_date_ip').value;
             const iRawTime = document.getElementById('s2_time_ip').value;
-            const iChurch = document.getElementById('s2_chk_ip').checked ? " 교회출" : "";
+            const iChurch = document.getElementById('s2_chk_ip').checked ? " 교회출발" : "";
 
-            // 발인/천국환송
             const bDate = document.getElementById('s2_date_bal').value;
             const bRawTime = document.getElementById('s2_time_bal').value;
-            const bChurch = document.getElementById('s2_chk_bal').checked ? " 교회출" : "";
+            const bChurch = document.getElementById('s2_chk_bal').checked ? " 교회출발" : "";
 
-            // Smart Formatting Check
             const rawTimes = [wRawTime, iRawTime, bRawTime];
             const hasMinutes = rawTimes.some(t => {
                 const parsed = parseTime(t);
                 return parsed.valid && parsed.m > 0;
             });
 
-            if (wDate && wRawTime) body += `위로: ${formatLongDate(wDate)} ${formatTime(wRawTime, hasMinutes)}${wChurch}\n`;
-            if (iDate && iRawTime) body += `입관: ${formatLongDate(iDate)} ${formatTime(iRawTime, hasMinutes)}${iChurch}\n`;
+            if (wDate && wRawTime) body += `위로: ${formatLongDate(wDate)} ${formatTimeLong(wRawTime, hasMinutes)}${wChurch}\n`;
+            if (iDate && iRawTime) body += `입관: ${formatLongDate(iDate)} ${formatTimeLong(iRawTime, hasMinutes)}${iChurch}\n`;
 
-            // 모드에 따라 라벨 변경 (교회장: 천국환송, 교구장: 발인) -> 근데 사용자가 그냥 입력한거라.. 
-            // 그냥 '발인' or '천국환송' 라벨을 붙여야 하나? 샘플엔 '발인', '천국환송' 다름.
-            // 그냥 UI에서 선택하게 하거나 고정? 
-            // 샘플: 교구장 -> 발인, 교회장 -> 천국환송
             const mode = document.getElementById('mode').value;
             const balLabel = (mode === 'church') ? "천국환송" : "발인";
 
-            if (bDate && bRawTime) body += `${balLabel}: ${formatLongDate(bDate)} ${formatTime(bRawTime, hasMinutes)}${bChurch}\n`;
+            if (bDate && bRawTime) body += `${balLabel}: ${formatLongDate(bDate)} ${formatTimeLong(bRawTime, hasMinutes)}${bChurch}\n`;
 
             body += `빈소: ${binso}\n`;
             if (jangji) body += `장지: ${jangji}`;
 
             const finalMsg = `${header}\n\n${body}`;
-
             const resBox = createResultBoxHTML("교우소식 완성본", finalMsg, getByteLength(finalMsg), "normal", "res_step2");
             document.getElementById('step2-result').innerHTML = resBox;
             document.getElementById('step2-result').style.display = 'block';
