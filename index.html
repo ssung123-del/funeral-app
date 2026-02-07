@@ -347,17 +347,35 @@
                             id="preview-text" contenteditable="false"></div>
                     </div>
 
+                    <!-- Suggestion Box -->
+                    <div id="suggestion-box" class="hidden px-4 pb-4 bg-slate-50 flex flex-col gap-2">
+                        <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-lg flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-indigo-600 flex items-center gap-1">
+                                    <i class="ri-magic-line"></i> 90byte 최적화 제안
+                                </span>
+                                <span id="suggestion-bytes" class="text-[10px] font-bold text-green-600"></span>
+                            </div>
+                            <div class="text-xs text-slate-600 bg-white p-2 rounded border border-indigo-50 font-mono"
+                                id="suggestion-text"></div>
+                            <button onclick="App.applyOptimization()"
+                                class="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold py-2 rounded transition-colors">
+                                적용하기
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Actions -->
-                    <div class="p-4 bg-white border-t border-slate-100 grid grid-cols-2 gap-3">
+                    <div class="p-4 bg-white border-t border-slate-100">
                         <button onclick="App.copyText()"
-                            class="col-span-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md shadow-indigo-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md shadow-indigo-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
                             <i class="ri-file-copy-line"></i> 텍스트 복사하기
                         </button>
                     </div>
                 </div>
 
                 <p class="text-center text-xs text-slate-400">
-                    Copyright © 2024 Funeral Messager. All rights reserved.
+                    Copyright © 2026 Funeral Messager. All rights reserved.
                 </p>
 
             </div>
@@ -452,8 +470,13 @@
             },
 
             init() {
-                // Set default dates to today
-                const today = new Date().toISOString().split('T')[0];
+                // Set default dates to today (Local Time)
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const today = `${year}-${month}-${day}`;
+
                 this.state.schedules.wiro.date = today;
                 this.state.schedules.ipgwan.date = today;
                 this.state.schedules.balin.date = today;
@@ -607,6 +630,77 @@
                 return `${header}${body}`;
             },
 
+            // --- Optimization Logic ---
+            getOptimizedText(text) {
+                if (!text) return "";
+
+                // 1. Remove Spaces
+                let opt = text.replace(/\s+/g, ' ').trim();
+
+                // 2. Shorten Labels (Always apply these for optimization)
+                opt = opt.replace(/위로예배/g, '위로');
+                opt = opt.replace(/입관예배/g, '입관');
+                opt = opt.replace(/발인예배/g, '발인');
+                opt = opt.replace(/천국환송예배/g, '천국환송');
+                opt = opt.replace(/장례식장/g, '빈소');
+
+                // 3. Aggressive Shortening if still > 90 bytes
+                if (Utils.getByteLength(opt) > 90) {
+                    opt = opt.replace(/교회출발/g, '교출');
+                    opt = opt.replace(/\(교회출\)/g, '');
+                }
+
+                if (Utils.getByteLength(opt) > 90) {
+                    opt = opt.replace(/\([월화수목금토일]\)/g, '');
+                    opt = opt.replace(/\(오늘\)/g, '');
+                }
+
+                if (Utils.getByteLength(opt) > 90) {
+                    opt = opt.replace(/故/g, '');
+                }
+
+                return opt;
+            },
+
+            applyOptimization() {
+                const suggestion = document.getElementById('suggestion-text').innerText;
+                if (!suggestion) return;
+
+                // Since this is a view-only change in the current architecture (preview-text is derived),
+                // we technically can't "set" the state back easily without parsing.
+                // HOWEVER, the user asked to "recommend". 
+                // If we want to Apply, we might just update the preview text DOM and stop rendering for a moment?
+                // OR, simply copy the optimized text to clipboard?
+                // The current app derives text fully from state. modifying text directly means it will be overwritten on next render.
+                // Given the structure, "Applying" might be tricky without reverse-engineering state.
+                // A better approach for now: Just copy it or let user copy it. 
+                // User requirement: "Recommend below".
+                // Let's make the "Apply" button just update the visual preview and maybe stop auto-rendering?
+                // No, better to just let them COPY the optimized version directly.
+                // WAIT, if I update the preview DOM, `copyText` picks it up.
+
+                const previewEl = document.getElementById('preview-text');
+                previewEl.innerText = suggestion;
+
+                // Manually trigger render updates for byte counter, but skip generating text
+                const bytes = Utils.getByteLength(suggestion);
+                this.updateByteCounter(bytes);
+
+                // Hide suggestion since we applied it
+                document.getElementById('suggestion-box').classList.add('hidden');
+            },
+
+            updateByteCounter(bytes) {
+                const badgeClass = bytes <= 90 ? "text-green-600 bg-green-100" : "text-amber-600 bg-amber-100";
+                const badgeLabel = bytes <= 90 ? "SMS" : "LMS";
+
+                document.getElementById('byte-counter').innerHTML = `
+                    <span class="font-bold text-slate-700">${bytes}</span> Bytes 
+                    <span class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
+                `;
+            },
+
+
             generateDetailText() {
                 const s = this.state;
                 if (!s.district && !s.deceased.name) return "상세 정보를 보시려면 기본 정보를 입력해주세요.";
@@ -656,6 +750,7 @@
 
                 return `${header}\n\n${body}`;
             },
+
 
             // --- Render Logic ---
             renderScheduleInputs() {
@@ -838,6 +933,79 @@
                     <span class="font-bold text-slate-700">${bytes}</span> Bytes 
                     <span class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
                 `;
+
+                // Update Suggestion Box
+                const suggestionBox = document.getElementById('suggestion-box');
+                const suggestionText = document.getElementById('suggestion-text');
+                const suggestionBytes = document.getElementById('suggestion-bytes');
+
+                if (bytes > 90) {
+                    const optimized = this.getOptimizedText(text);
+                    const optBytes = Utils.getByteLength(optimized);
+
+                    // Show suggestion only if it actually reduces size
+                    if (optBytes < bytes) {
+                        suggestionText.innerText = optimized;
+                        suggestionBytes.innerText = `(${optBytes} Bytes)`;
+                        suggestionBytes.className = optBytes <= 90 ? "text-[10px] font-bold text-green-600" : "text-[10px] font-bold text-amber-600";
+                        suggestionBox.classList.remove('hidden');
+                    } else {
+                        suggestionBox.classList.add('hidden');
+                    }
+                } else {
+                    suggestionBox.classList.add('hidden');
+                }
+            },
+
+            // --- Optimization Logic ---
+
+
+
+
+
+            // --- Optimization Logic ---
+            getOptimizedText(text) {
+                if (!text) return "";
+                let opt = text;
+
+                // 1. Remove Spaces first (general cleanup)
+                opt = opt.replace(/\s+/g, ' ').trim();
+
+                let currentBytes = Utils.getByteLength(opt);
+
+                // Only optimize if > 90 bytes
+                if (currentBytes > 90) {
+                    // Church Departure -> Shorten
+                    opt = opt.replace(/교회출발/g, '교출');
+
+                    // If still > 90, remove "Sochun"
+                    if (Utils.getByteLength(opt) > 90) {
+                        opt = opt.replace(/소천/g, '');
+                    }
+                }
+
+                return opt;
+            },
+
+            applyOptimization() {
+                const suggestion = document.getElementById('suggestion-text').innerText;
+                if (!suggestion) return;
+
+                const previewEl = document.getElementById('preview-text');
+                previewEl.innerText = suggestion;
+
+                // Update Byte Count
+                const bytes = Utils.getByteLength(suggestion);
+                const badgeClass = bytes <= 90 ? "text-green-600 bg-green-100" : "text-amber-600 bg-amber-100";
+                const badgeLabel = bytes <= 90 ? "SMS" : "LMS";
+
+                document.getElementById('byte-counter').innerHTML = `
+                    <span class="font-bold text-slate-700">${bytes}</span> Bytes 
+                    <span class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
+                `;
+
+                document.getElementById('suggestion-box').classList.add('hidden');
+                this.showToast("최적화된 내용이 적용되었습니다.");
             },
 
             copyText() {
