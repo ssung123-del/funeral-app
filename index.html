@@ -304,6 +304,8 @@
                             <span>발인 교회출발</span>
                         </label>
                     </div>
+                    <!-- Extra Schedule Inputs for District Mode -->
+                    <div id="extra-schedule-district" class="space-y-3 pt-3 border-t border-slate-200 hidden"></div>
                 </div>
             </section>
 
@@ -463,6 +465,17 @@
             // --- State Actions ---
             setMode(mode) {
                 this.state.mode = mode;
+
+                // Church Departure Defaults (District: False, Church: True)
+                const isChurch = (mode === 'church');
+                this.state.churchDeparture.ipgwan = isChurch;
+                this.state.churchDeparture.balin = isChurch;
+
+                const chkIpgwan = document.getElementById('chk-ipgwan-church');
+                const chkBalin = document.getElementById('chk-balin-church');
+                if (chkIpgwan) chkIpgwan.checked = isChurch;
+                if (chkBalin) chkBalin.checked = isChurch;
+
                 // UI Toggle Logic
                 document.getElementById('btn-mode-district').className = mode === 'district' ? "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-indigo-600 bg-white shadow-sm" : "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700";
                 document.getElementById('btn-mode-church').className = mode === 'church' ? "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-indigo-600 bg-white shadow-sm" : "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700";
@@ -649,54 +662,102 @@
                 const containerWiro = document.getElementById('schedule-wiro');
                 const containerIpgwan = document.getElementById('schedule-ipgwan');
                 const containerBalin = document.getElementById('schedule-balin');
+                const extraContainer = document.getElementById('extra-schedule-district');
 
-                // Clear
-                containerWiro.innerHTML = '';
-                containerIpgwan.innerHTML = '';
-                containerBalin.innerHTML = '';
+                // Clear previous content
+                if (containerWiro) containerWiro.innerHTML = '';
+                if (containerIpgwan) containerIpgwan.innerHTML = '';
+                if (containerBalin) containerBalin.innerHTML = '';
+                if (extraContainer) extraContainer.innerHTML = '';
 
-                // Helper to create row
+                // Helper to create row safely
                 const createRow = (label, key) => {
-                    const tmpl = document.getElementById('tmpl-schedule-row').content.cloneNode(true);
-                    tmpl.querySelector('.label-name').textContent = label;
+                    const tmpl = document.getElementById('tmpl-schedule-row');
+                    if (!tmpl) return document.createElement('div');
 
-                    const dateInput = tmpl.querySelector('.input-date');
-                    dateInput.value = this.state.schedules[key].date;
-                    dateInput.onchange = (e) => { this.state.schedules[key].date = e.target.value; this.render(); };
+                    const clone = tmpl.content.cloneNode(true);
 
-                    const ampmInput = tmpl.querySelector('.input-ampm');
-                    ampmInput.value = this.state.schedules[key].ampm;
-                    ampmInput.onchange = (e) => { this.state.schedules[key].ampm = e.target.value; this.render(); };
+                    const labelDiv = clone.querySelector('.label-name');
+                    if (labelDiv) labelDiv.textContent = label;
 
-                    const hourInput = tmpl.querySelector('.input-hour');
-                    hourInput.value = this.state.schedules[key].hour;
-                    hourInput.oninput = (e) => { this.state.schedules[key].hour = e.target.value; this.render(); };
+                    const dateInput = clone.querySelector('.input-date');
+                    if (dateInput) {
+                        dateInput.value = this.state.schedules[key].date;
+                        dateInput.onchange = (e) => { this.state.schedules[key].date = e.target.value; this.render(); };
+                    }
 
-                    const minInput = tmpl.querySelector('.input-min');
-                    minInput.value = this.state.schedules[key].min;
-                    minInput.oninput = (e) => { this.state.schedules[key].min = e.target.value; this.render(); };
+                    const ampmInput = clone.querySelector('.input-ampm');
+                    if (ampmInput) {
+                        ampmInput.value = this.state.schedules[key].ampm;
+                        ampmInput.onchange = (e) => { this.state.schedules[key].ampm = e.target.value; this.render(); };
+                    }
 
-                    return tmpl;
+                    const hourInput = clone.querySelector('.input-hour');
+                    if (hourInput) {
+                        hourInput.value = this.state.schedules[key].hour;
+                        hourInput.oninput = (e) => { this.state.schedules[key].hour = e.target.value; this.render(); };
+                    }
+
+                    const minInput = clone.querySelector('.input-min');
+                    if (minInput) {
+                        minInput.value = this.state.schedules[key].min;
+                        minInput.oninput = (e) => { this.state.schedules[key].min = e.target.value; this.render(); };
+                    }
+
+                    return clone;
                 };
 
+                const toggleVisibility = (el, show) => {
+                    if (el) el.style.display = show ? 'flex' : 'none';
+                };
+
+                const chkIpgwanLabel = document.getElementById('chk-ipgwan-church')?.closest('label');
+                const chkBalinLabel = document.getElementById('chk-balin-church')?.closest('label');
+
                 if (this.state.mode === 'district') {
+                    // District Mode Logic
                     if (this.state.isIndividual) {
-                        // Only Balin Date for Individual
-                        const balinRow = createRow('발인', 'balin');
-                        // Hide time inputs for individual balin if needed, based on original logic "시간 입력 없음"
-                        // BUT original code had `date_balin` only. Let's hide time part.
-                        balinRow.querySelector('.col-span-4').style.visibility = 'hidden';
-                        containerBalin.appendChild(balinRow);
+                        // Individual Condolence Mode
+                        if (extraContainer) extraContainer.classList.add('hidden');
+
+                        if (containerBalin) {
+                            const balinRow = createRow('발인', 'balin');
+                            const timeInputs = balinRow.querySelector('.col-span-4');
+                            if (timeInputs) timeInputs.style.visibility = 'hidden';
+                            containerBalin.appendChild(balinRow);
+                        }
                     } else {
-                        containerWiro.appendChild(createRow('위로예배', 'wiro'));
+                        // Standard District Mode
+                        if (containerWiro) containerWiro.appendChild(createRow('위로예배', 'wiro'));
+
+                        // Add Ipgwan & Balin to DETAILS section
+                        if (extraContainer) {
+                            extraContainer.classList.remove('hidden');
+                            extraContainer.appendChild(createRow('입관예배', 'ipgwan'));
+                            extraContainer.appendChild(createRow('발인예배', 'balin'));
+
+                            // Hide "Church Departure" Checkboxes
+                            toggleVisibility(chkIpgwanLabel, false);
+                            toggleVisibility(chkBalinLabel, false);
+                        }
                     }
-                    containerIpgwan.classList.add('hidden');
+                    if (containerIpgwan) containerIpgwan.classList.add('hidden');
+
                 } else {
-                    // Church Mode
-                    containerWiro.appendChild(createRow('위로예배', 'wiro'));
-                    containerIpgwan.appendChild(createRow('입관예배', 'ipgwan'));
-                    containerIpgwan.classList.remove('hidden');
-                    containerBalin.appendChild(createRow('천국환송', 'balin'));
+                    // Church Mode Logic
+                    if (containerWiro) containerWiro.appendChild(createRow('위로예배', 'wiro'));
+                    if (containerIpgwan) {
+                        containerIpgwan.appendChild(createRow('입관예배', 'ipgwan'));
+                        containerIpgwan.classList.remove('hidden');
+                    }
+                    if (containerBalin) containerBalin.appendChild(createRow('천국환송', 'balin'));
+
+                    // Hide Extra Container
+                    if (extraContainer) extraContainer.classList.add('hidden');
+
+                    // Show Church Departure Checkboxes
+                    toggleVisibility(chkIpgwanLabel, true);
+                    toggleVisibility(chkBalinLabel, true);
                 }
             },
 
