@@ -4,66 +4,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>장례문자 생성기 (Premium)</title>
-
-    <!-- Icons -->
+    <title>장례문자 생성기</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-
-    <!-- Fonts -->
     <link rel="stylesheet" as="style" crossorigin
         href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
-
-    <!-- Tailwind CSS (CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Pretendard', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#4f46e5', // Indigo 600
-                        secondary: '#64748b', // Slate 500
-                        accent: '#06b6d4', // Cyan 500
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        /* Custom Scrollbar for a cleaner look */
-        ::-webkit-scrollbar {
-            width: 6px;
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f2f4f6;
+            --card: #ffffff;
+            --text: #191f28;
+            --text-sub: #8b95a1;
+            --border: #e5e8eb;
+            --red: #e74c3c;
+            --green: #27ae60;
+            --orange: #f39c12;
         }
 
-        ::-webkit-scrollbar-track {
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            padding: 30px 24px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin: 0 0 20px 0;
+        }
+
+        /* Segment Control */
+        .segment-control {
+            display: flex;
+            background: #f2f4f6;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .segment-btn {
+            flex: 1;
+            border: none;
             background: transparent;
+            padding: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
+        .segment-btn.active {
+            color: var(--primary);
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        /* Inputs */
+        .input-group {
+            margin-bottom: 12px;
         }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            transition: border-color 0.2s;
         }
 
-        .slide-up {
-            animation: slideUp 0.3s ease-out;
+        .input-wrapper:focus-within {
+            border-color: var(--accent);
         }
 
-        @keyframes slideUp {
+        .input-icon {
+            color: var(--text-sub);
+            margin-right: 10px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .custom-input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 15px;
+            color: var(--text);
+            background: transparent;
+            padding: 0;
+        }
+
+        .custom-input::placeholder {
+            color: #c5c8ce;
+        }
+
+        /* Grids */
+        .row-grid {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .col-7 {
+            flex: 7;
+        }
+
+        .col-3 {
+            flex: 3;
+        }
+
+        .datetime-grid {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .date-col {
+            flex: 4;
+        }
+
+        .time-col {
+            flex: 6;
+        }
+
+        select.custom-input {
+            -webkit-appearance: none;
+            background: transparent;
+            text-align: center;
+        }
+
+        input[type="date"] {
+            font-family: 'Pretendard', sans-serif;
+            color: var(--text);
+            position: relative;
+            width: 100%;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background: transparent;
+            bottom: 0;
+            color: transparent;
+            cursor: pointer;
+            height: auto;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: auto;
+        }
+
+        /* UI Elements */
+        .section-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin: 0 0 6px 4px;
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 0 4px;
+        }
+
+        .toggle-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--accent);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Joint Funeral Card */
+        .joint-card {
+            background: #f0f7ff;
+            border: 1px solid #cce5ff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+        }
+
+        .joint-header {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .joint-select {
+            font-size: 12px;
+            padding: 4px;
+            border-radius: 4px;
+            border: 1px solid #cce5ff;
+            color: var(--accent);
+        }
+
+        .btn-delete {
+            background: white;
+            border: 1px solid #ffcccc;
+            color: var(--red);
+            font-size: 11px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .btn-add-secondary {
+            width: 100%;
+            background: white;
+            border: 1px dashed #3498db;
+            color: #3498db;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-add-secondary:hover {
+            background: #f0f7ff;
+        }
+
+        .btn-generate {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Result Area Styles */
+        .result-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .result-box.highlight {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .result-box.warning {
+            background: #fffaf0;
+            border-color: #fce8b2;
+        }
+
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .box-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .byte-info {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .byte-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .byte-badge.sms {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .byte-badge.lms {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .result-text {
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            color: var(--primary);
+            word-break: break-all;
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+
+        .btn-copy {
+            width: 100%;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: background 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: #f2f4f6;
+        }
+
+        .btn-copy.green {
+            color: var(--green);
+            border-color: #bbf7d0;
+        }
+
+        .auto-tag {
+            font-size: 11px;
+            color: var(--accent);
+            margin-left: 4px;
+            font-weight: normal;
+        }
+
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(-5px);
             }
 
             to {
@@ -71,977 +441,575 @@
                 transform: translateY(0);
             }
         }
-
-        /* Hide number input spinners */
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+<body>
 
-    <!-- Toast Container -->
-    <div id="toast-container"
-        class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none">
+    <div class="app-container">
+        <h2>장례문자 생성기</h2>
+
+        <div class="segment-control">
+            <button class="segment-btn active" onclick="setMode('district')" id="btn-district">교구장</button>
+            <button class="segment-btn" onclick="setMode('church')" id="btn-church">교회장</button>
+        </div>
+        <input type="hidden" id="mode" value="district">
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <i class="ri-map-pin-user-line input-icon"></i>
+                <input type="text" id="district" class="custom-input" placeholder="교구명">
+            </div>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border);">
+            <span class="section-label">이름 및 직분 <span class="auto-tag" id="ko-tag" style="display:none;">* '故' 자동추가</span></span>
+            <div class="row-grid">
+                <div class="input-wrapper col-7" style="padding: 8px 12px;">
+                    <input type="text" id="name1" class="custom-input" placeholder="이름 (예: 홍길동)">
+                </div>
+                <div class="input-wrapper col-3" style="padding: 8px 4px;">
+                    <select id="title1" class="custom-input">
+                        <option value="">직분</option>
+                        <option value="성도">성도</option>
+                        <option value="집사">집사</option>
+                        <option value="안수집사">안수</option>
+                        <option value="권사">권사</option>
+                        <option value="장로">장로</option>
+                        <option value="목사">목사</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row-grid">
+                <div class="input-wrapper col-7" style="padding: 8px 12px;">
+                    <input type="text" id="name2" class="custom-input" placeholder="배우자 (없으면 빈칸)">
+                </div>
+                <div class="input-wrapper col-3" style="padding: 8px 4px;">
+                    <select id="title2" class="custom-input">
+                        <option value="">직분</option>
+                        <option value="성도">성도</option>
+                        <option value="집사">집사</option>
+                        <option value="안수집사">안수</option>
+                        <option value="권사">권사</option>
+                        <option value="장로">장로</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-wrapper" id="relation-area" style="margin-top: 8px; padding: 10px;">
+                <i class="ri-link-m input-icon"></i>
+                <input type="text" id="relation" class="custom-input" placeholder="관계 (예: 부친) * '소천' 자동추가">
+            </div>
+        </div>
+
+        <div id="joint-wrapper" class="hidden">
+            <div id="joint-container"></div>
+            <button id="btn-add-joint" class="btn-add-secondary" onclick="addJointCard()">
+                <i class="ri-add-circle-line"></i> 겹장 추가하기
+            </button>
+        </div>
+
+        <div id="district-section">
+            <div class="toggle-container">
+                <span class="toggle-label">개별조문 진행</span>
+                <label class="switch">
+                    <input type="checkbox" id="isIndividual" onchange="toggleIndividual()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div id="group-wiro" class="input-group">
+                <span class="section-label">위로예배</span>
+                <div class="datetime-grid">
+                    <div class="input-wrapper date-col"><input type="date" id="date_wiro_district" class="custom-input"></div>
+                    <div class="input-wrapper time-col"><input type="text" id="time_wiro_district" class="custom-input" placeholder="시간 (예: 오후2시)"></div>
+                </div>
+            </div>
+            <div id="group-individual" class="input-group hidden">
+                <span class="section-label">발인 날짜 (시간 입력 없음)</span>
+                <div class="input-wrapper">
+                    <i class="ri-calendar-check-line input-icon"></i>
+                    <input type="date" id="date_balin" class="custom-input">
+                </div>
+            </div>
+        </div>
+
+        <div id="church-section" class="hidden">
+            <span class="section-label" style="color:var(--accent);">상세 일정 (입력된 것만 표시)</span>
+            <div class="section-label" style="margin-top:8px;">위로예배</div>
+            <div class="datetime-grid">
+                <div class="input-wrapper date-col"><input type="date" id="date_wiro_church" class="custom-input"></div>
+                <div class="input-wrapper time-col"><input type="text" id="time_wiro_church" class="custom-input" placeholder="시간 (예: 오후4시)"></div>
+            </div>
+            <div class="section-label">입관예배</div>
+            <div class="datetime-grid">
+                <div class="input-wrapper date-col"><input type="date" id="date_ipgwan" class="custom-input"></div>
+                <div class="input-wrapper time-col"><input type="text" id="time_ipgwan" class="custom-input" placeholder="시간 (예: 오후2시)"></div>
+            </div>
+            <div class="section-label">천국환송(발인)</div>
+            <div class="datetime-grid">
+                <div class="input-wrapper date-col"><input type="date" id="date_sendoff" class="custom-input"></div>
+                <div class="input-wrapper time-col"><input type="text" id="time_sendoff" class="custom-input" placeholder="시간 (예: 오전6시)"></div>
+            </div>
+        </div>
+
+        <div class="input-group" style="margin-top: 15px;">
+            <div class="input-wrapper">
+                <i class="ri-hospital-line input-icon"></i>
+                <input type="text" id="location" class="custom-input" placeholder="장례식장 (예: OO병원장례식장O호)">
+            </div>
+        </div>
+
+        <button class="btn-generate" onclick="generate()">문자 생성하기</button>
+
+        <div class="result-container" id="resultArea"></div>
+
+        <div id="step2-section" class="hidden" style="margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px;">
+            <h3 style="font-size: 18px; color: var(--primary); margin-bottom: 15px;">교우소식 상세 입력</h3>
+
+            <div class="input-group">
+                <span class="section-label">제목 (헤더)</span>
+                <div class="input-wrapper">
+                    <input type="text" id="s2_header" class="custom-input" placeholder="[교구장-강남] 류양열안수집사...">
+                </div>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px;">
+                <span class="section-label">위로예배</span>
+                <div class="datetime-grid">
+                    <div class="input-wrapper date-col"><input type="date" id="s2_date_wiro" class="custom-input"></div>
+                    <div class="input-wrapper time-col"><input type="text" id="s2_time_wiro" class="custom-input" placeholder="오전 10:00"></div>
+                </div>
+                <div style="text-align: right;">
+                    <label style="font-size:13px; color:var(--text); cursor:pointer;">
+                        <input type="checkbox" id="s2_chk_wiro" checked> 교회출발
+                    </label>
+                </div>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px;">
+                <span class="section-label">입관예배</span>
+                <div class="datetime-grid">
+                    <div class="input-wrapper date-col"><input type="date" id="s2_date_ip" class="custom-input"></div>
+                    <div class="input-wrapper time-col"><input type="text" id="s2_time_ip" class="custom-input" placeholder="오전 10:00"></div>
+                </div>
+                <div style="text-align: right;">
+                    <label style="font-size:13px; color:var(--text); cursor:pointer;">
+                        <input type="checkbox" id="s2_chk_ip" checked> 교회출발
+                    </label>
+                </div>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px;">
+                <span class="section-label">발인 / 천국환송</span>
+                <div class="datetime-grid">
+                    <div class="input-wrapper date-col"><input type="date" id="s2_date_bal" class="custom-input"></div>
+                    <div class="input-wrapper time-col"><input type="text" id="s2_time_bal" class="custom-input" placeholder="오전 5:30"></div>
+                </div>
+                <div style="text-align: right;">
+                    <label style="font-size:13px; color:var(--text); cursor:pointer;">
+                        <input type="checkbox" id="s2_chk_bal" checked> 교회출발
+                    </label>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <span class="section-label">빈소</span>
+                <div class="input-wrapper">
+                    <input type="text" id="s2_binso" class="custom-input" placeholder="장례식장">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <span class="section-label">장지</span>
+                <div class="input-wrapper">
+                    <input type="text" id="s2_jangji" class="custom-input" placeholder="장지 입력">
+                </div>
+            </div>
+
+            <button class="btn-generate" onclick="generateStep2()" style="background: var(--accent);">교우소식 생성하기</button>
+            <div id="step2-result" style="margin-top: 20px; display: none;"></div>
+        </div>
     </div>
 
-    <!-- Header -->
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 shadow-sm">
-        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                    <i class="ri-mail-send-line text-lg"></i>
-                </div>
-                <h1 class="font-bold text-lg text-slate-800">장례문자 생성기</h1>
-            </div>
-            <!-- Mode Toggle (Desktop) -->
-            <div class="hidden md:flex bg-slate-100 p-1 rounded-lg">
-                <button onclick="App.setMode('district')" id="btn-mode-district"
-                    class="px-4 py-1.5 rounded-md text-sm font-medium transition-all text-indigo-600 bg-white shadow-sm">교구장</button>
-                <button onclick="App.setMode('church')" id="btn-mode-church"
-                    class="px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700">교회장</button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="flex-grow max-w-5xl mx-auto w-full p-4 md:py-8 grid grid-cols-1 md:grid-cols-12 gap-6">
-
-        <!-- Left Column: Input Form -->
-        <div class="md:col-span-7 space-y-6">
-
-            <!-- Mobile Mode Toggle -->
-            <div class="md:hidden bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex">
-                <button onclick="App.setMode('district')" id="btn-mode-district-m"
-                    class="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all text-indigo-600 bg-indigo-50">교구장</button>
-                <button onclick="App.setMode('church')" id="btn-mode-church-m"
-                    class="flex-1 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-500">교회장</button>
-            </div>
-
-            <!-- Card 1: Basic Info -->
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden slide-up">
-                <div class="px-5 py-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
-                    <h2 class="font-bold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs">1</span>
-                        기본 정보
-                    </h2>
-                </div>
-                <div class="p-5 space-y-4">
-                    <!-- 교구명 & 장소 -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-1">교구명</label>
-                            <div class="relative">
-                                <i class="ri-map-pin-user-line absolute left-3 top-3 text-slate-400"></i>
-                                <input type="text" id="input-district" placeholder="예: 교구"
-                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm font-medium"
-                                    oninput="App.updateState('district', this.value)">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-1">장례식장</label>
-                            <div class="relative">
-                                <i class="ri-hospital-line absolute left-3 top-3 text-slate-400"></i>
-                                <input type="text" id="input-location" placeholder="예: 서울아산병원"
-                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm font-medium"
-                                    oninput="App.updateState('location', this.value)">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 고인 정보 -->
-                    <div class="bg-indigo-50/30 rounded-xl p-4 border border-indigo-100/50">
-                        <label class="block text-xs font-bold text-indigo-900 mb-2">상주 / 고인 정보 <span
-                                class="text-indigo-400 font-normal text-[10px] ml-1">* '故' 자동 추가됨</span></label>
-                        <div class="grid grid-cols-12 gap-2 mb-2">
-                            <div class="col-span-8">
-                                <input type="text" id="input-name" placeholder="상주 이름 (예: 홍길동)"
-                                    class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-sm"
-                                    oninput="App.updateState('deceased.name', this.value)">
-                            </div>
-                            <div class="col-span-4">
-                                <select id="input-title"
-                                    class="w-full px-2 py-2 bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-sm"
-                                    onchange="App.updateState('deceased.title', this.value)">
-                                    <option value="">직분</option>
-                                    <option value="성도">성도</option>
-                                    <option value="집사">집사</option>
-                                    <option value="안수집사">안수</option>
-                                    <option value="권사">권사</option>
-                                    <option value="장로">장로</option>
-                                    <option value="목사">목사</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- 배우자 -->
-                        <div class="grid grid-cols-12 gap-2 mb-2">
-                            <div class="col-span-8">
-                                <input type="text" id="input-spouse" placeholder="배우자 (없는 경우 빈칸)"
-                                    class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-sm"
-                                    oninput="App.updateState('deceased.spouse', this.value)">
-                            </div>
-                            <div class="col-span-4">
-                                <select id="input-spouse-title"
-                                    class="w-full px-2 py-2 bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-sm"
-                                    onchange="App.updateState('deceased.spouseTitle', this.value)">
-                                    <option value="">직분</option>
-                                    <option value="성도">성도</option>
-                                    <option value="집사">집사</option>
-                                    <option value="안수집사">안수</option>
-                                    <option value="권사">권사</option>
-                                    <option value="장로">장로</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- 관계 (교구장 모드 전용) -->
-                        <div id="wrapper-relation" class="mt-2">
-                            <input type="text" id="input-relation" placeholder="관계 (예: 부친, 모친, 장인, 시모...)"
-                                class="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-sm"
-                                oninput="App.updateState('deceased.relation', this.value)">
-                        </div>
-                    </div>
-
-                    <!-- Joint Funeral (Church Mode Only) -->
-                    <div id="wrapper-joint" class="hidden">
-                        <div id="joint-list" class="space-y-3 mb-3"></div>
-                        <button onclick="App.addJoint()"
-                            class="w-full py-3 border-2 border-dashed border-indigo-200 rounded-xl text-indigo-500 text-sm font-bold hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2">
-                            <i class="ri-add-circle-line text-lg"></i> 겹장 추가하기 (동시 장례)
-                        </button>
-                    </div>
-
-                </div>
-            </section>
-
-            <!-- Card 2: Schedule -->
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden slide-up"
-                style="animation-delay: 0.1s;">
-                <div class="px-5 py-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
-                    <h2 class="font-bold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">2</span>
-                        장례 일정
-                    </h2>
-                    <!-- Individual Toggle (District Mode Only) -->
-                    <div id="wrapper-individual-toggle" class="flex items-center gap-2">
-                        <span class="text-xs font-medium text-slate-500">개별 조문</span>
-                        <div
-                            class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggle" id="toggle-individual"
-                                class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer"
-                                style="top: 2px; left: 2px; transition: all 0.3s;"
-                                onclick="App.toggleIndividual(this.checked)" />
-                            <label for="toggle-individual"
-                                class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer"></label>
-                        </div>
-                    </div>
-                    <style>
-                        .toggle-checkbox:checked {
-                            right: 0;
-                            border-color: #10b981;
-                        }
-
-                        .toggle-checkbox:checked+.toggle-label {
-                            background-color: #10b981;
-                        }
-
-                        .toggle-checkbox:checked {
-                            transform: translateX(100%);
-                        }
-                    </style>
-                </div>
-
-                <div class="p-5 space-y-6">
-                    <!-- Schedule Items -->
-                    <div id="schedule-wiro" class="schedule-item"></div>
-                    <div id="schedule-ipgwan" class="schedule-item hidden"></div>
-                    <div id="schedule-balin" class="schedule-item"></div>
-                </div>
-            </section>
-
-            <!-- Card 2.5: Details (Step 2 Data) -->
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden slide-up"
-                style="animation-delay: 0.1s;">
-                <div class="px-5 py-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center"
-                    onclick="App.toggleDetails()" style="cursor: pointer">
-                    <h2 class="font-bold text-slate-700 flex items-center gap-2">
-                        <span
-                            class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs">3</span>
-                        교우소식 상세 정보 (선택)
-                    </h2>
-                    <i id="icon-details-toggle"
-                        class="ri-arrow-down-s-line text-slate-400 text-xl transition-transform"></i>
-                </div>
-                <div id="details-content" class="hidden p-5 space-y-4 bg-slate-50/30">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-1">장지 (선산/납골당)</label>
-                        <input type="text" id="input-jangji" placeholder="예: 시안가족추모공원"
-                            class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-orange-400 text-sm"
-                            oninput="App.updateState('jangji', this.value)">
-                    </div>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                            <input type="checkbox" id="chk-wiro-church" checked
-                                class="w-4 h-4 text-orange-500 rounded focus:ring-orange-400"
-                                onchange="App.updateState('churchDeparture.wiro', this.checked)">
-                            <span>위로예배 교회출발</span>
-                        </label>
-                        <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                            <input type="checkbox" id="chk-ipgwan-church" checked
-                                class="w-4 h-4 text-orange-500 rounded focus:ring-orange-400"
-                                onchange="App.updateState('churchDeparture.ipgwan', this.checked)">
-                            <span>입관예배 교회출발</span>
-                        </label>
-                        <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                            <input type="checkbox" id="chk-balin-church" checked
-                                class="w-4 h-4 text-orange-500 rounded focus:ring-orange-400"
-                                onchange="App.updateState('churchDeparture.balin', this.checked)">
-                            <span>발인 교회출발</span>
-                        </label>
-                    </div>
-                    <!-- Extra Schedule Inputs for District Mode -->
-                    <div id="extra-schedule-district" class="space-y-3 pt-3 border-t border-slate-200 hidden"></div>
-                </div>
-            </section>
-
-        </div>
-
-        <!-- Right Column: Sticky Preview -->
-        <div class="md:col-span-5 relative">
-            <div class="sticky top-24 space-y-4">
-
-                <!-- Preview Header -->
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="font-bold text-slate-600 text-sm">실시간 미리보기</h3>
-                    <div class="flex gap-1" id="tab-preview">
-                        <button onclick="App.setPreviewTab('simple')" id="btn-tab-simple"
-                            class="px-3 py-1 text-xs font-bold rounded-full bg-indigo-100 text-indigo-700">문자
-                            (기본)</button>
-                        <button onclick="App.setPreviewTab('detail')" id="btn-tab-detail"
-                            class="px-3 py-1 text-xs font-medium rounded-full text-slate-500 hover:bg-slate-100">교우소식
-                            (상세)</button>
-                    </div>
-                </div>
-
-                <!-- Preview Box -->
-                <div
-                    class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col h-[500px] md:h-auto md:min-h-[400px]">
-                    <!-- Message Header -->
-                    <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 bg-red-400 rounded-full"></span>
-                            <span class="w-2.5 h-2.5 bg-yellow-400 rounded-full"></span>
-                            <span class="w-2.5 h-2.5 bg-green-400 rounded-full"></span>
-                        </div>
-                        <span id="byte-counter" class="text-xs font-mono text-slate-400">0 Bytes</span>
-                    </div>
-
-                    <!-- Content -->
-                    <div class="p-4 flex-grow bg-slate-50 relative overflow-hidden">
-                        <div class="absolute inset-0 overflow-y-auto p-4 content-scrollbar custom-input outline-none whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-800"
-                            id="preview-text" contenteditable="false"></div>
-                    </div>
-
-                    <!-- Suggestion Box -->
-                    <div id="suggestion-box" class="hidden px-4 pb-4 bg-slate-50 flex flex-col gap-2">
-                        <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-lg flex flex-col gap-2">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-indigo-600 flex items-center gap-1">
-                                    <i class="ri-magic-line"></i> 90byte 최적화 제안
-                                </span>
-                                <span id="suggestion-bytes" class="text-[10px] font-bold text-green-600"></span>
-                            </div>
-                            <div class="text-xs text-slate-600 bg-white p-2 rounded border border-indigo-50 font-mono"
-                                id="suggestion-text"></div>
-                            <button onclick="App.applyOptimization()"
-                                class="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold py-2 rounded transition-colors">
-                                적용하기
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="p-4 bg-white border-t border-slate-100">
-                        <button onclick="App.copyText()"
-                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md shadow-indigo-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                            <i class="ri-file-copy-line"></i> 텍스트 복사하기
-                        </button>
-                    </div>
-                </div>
-
-                <p class="text-center text-xs text-slate-400">
-                    Copyright © 2026 Funeral Messager. All rights reserved.
-                </p>
-
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Templates -->
-    <template id="tmpl-schedule-row">
-        <div class="grid grid-cols-12 gap-3 items-center">
-            <div class="col-span-3 text-xs font-bold text-slate-500 text-right pr-2 label-name"></div>
-            <div class="col-span-5 relative">
-                <input type="date"
-                    class="input-date w-full text-xs px-2 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500 font-sans"
-                    required>
-            </div>
-            <div class="col-span-4 relative">
-                <div class="flex bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
-                    <select
-                        class="input-ampm bg-transparent text-xs px-1 py-2 outline-none border-r border-slate-200 font-medium text-slate-600">
-                        <option value="오전">오전</option>
-                        <option value="오후">오후</option>
-                    </select>
-                    <input type="number" class="input-hour w-full text-center text-xs bg-transparent outline-none p-0"
-                        placeholder="시" min="1" max="12">
-                    <span class="text-slate-300 py-2">:</span>
-                    <input type="number" class="input-min w-full text-center text-xs bg-transparent outline-none p-0"
-                        placeholder="분" min="0" max="59">
-                </div>
-            </div>
-        </div>
-    </template>
-
     <script>
-        // --- Single File Application Logic ---
-
-        const Utils = {
-            clean: (str) => str ? str.replace(/\s+/g, '') : '',
-            getByteLength: (s) => {
-                let b = 0;
-                for (let i = 0; i < s.length; i++) {
-                    const c = s.charCodeAt(i);
-                    b += (c >> 7) ? 2 : 1;
-                }
-                return b;
-            },
-            formatDate: (dateStr) => {
-                if (!dateStr) return "";
-                const [y, m, d] = dateStr.split('-').map(Number);
-                const target = new Date(y, m - 1, d);
-                const today = new Date();
-                target.setHours(0, 0, 0, 0); today.setHours(0, 0, 0, 0);
-                const weekDays = ['주일', '월', '화', '수', '목', '금', '토'];
-                return (target.getTime() === today.getTime())
-                    ? `${d}일(오늘)`
-                    : `${d}일(${weekDays[target.getDay()]})`;
-            },
-            formatDateLong: (dateStr) => {
-                if (!dateStr) return "";
-                const [y, m, d] = dateStr.split('-').map(Number);
-                const target = new Date(y, m - 1, d);
-                const weekDays = ['주일', '월', '화', '수', '목', '금', '토'];
-                return `${m}월 ${d}일(${weekDays[target.getDay()]})`;
-            },
-            normalizeWeekdayLabel: (text) => {
-                return text ? text.replace(/\(일\)/g, '(주일)').trim() : text;
-            },
-            pad: (n) => String(n).padStart(2, '0'),
-            copyToClipboard: (text) => {
-                if (!text) return;
-                navigator.clipboard.writeText(text).then(() => {
-                    App.showToast("텍스트가 복사되었습니다 ✨");
-                }).catch(() => {
-                    App.showToast("복사에 실패했습니다 😢", true);
-                });
-            }
+        window.onload = function () {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const today = `${year}-${month}-${day}`;
+            document.querySelectorAll('input[type="date"]').forEach(input => input.value = today);
         };
 
-        const App = {
-            state: {
-                mode: 'district', // 'district' | 'church'
-                previewTab: 'simple', // 'simple' | 'detail'
-                district: '',
-                location: '',
-                deceased: { name: '', title: '', spouse: '', spouseTitle: '', relation: '' },
-                joints: [], // Array of { district, name, title, spouse, ... }
-                isIndividual: false,
-                jangji: '',
-                churchDeparture: { wiro: true, ipgwan: true, balin: true },
-                schedules: {
-                    wiro: { date: '', ampm: '오전', hour: '', min: '' },
-                    ipgwan: { date: '', ampm: '오전', hour: '', min: '' },
-                    balin: { date: '', ampm: '오전', hour: '', min: '' },
+        function clean(text) { return text ? text.replace(/\s+/g, '') : ""; }
+
+        function parseTime(text) {
+            if (!text) return { h: 0, m: 0, isAm: false, isPm: false, valid: false };
+            const s = text.replace(/\s+/g, '');
+
+            let isAm = s.includes("오전") || s.toLowerCase().includes("am");
+            let isPm = s.includes("오후") || s.toLowerCase().includes("pm");
+
+            const nums = s.match(/\d+/g);
+            if (!nums || nums.length === 0) return { h: 0, m: 0, isAm, isPm, valid: false };
+
+            let h = parseInt(nums[0], 10);
+            let m = nums.length > 1 ? parseInt(nums[1], 10) : 0;
+
+            if (!isAm && !isPm) {
+                if (h >= 12) {
+                    if (h > 12 && h < 24) { h -= 12; isPm = true; }
+                    else if (h === 12) { isPm = true; }
+                    else if (h === 24) { h = 12; isAm = true; }
                 }
-            },
-
-            init() {
-                // Set default dates to today (Local Time)
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const today = `${year}-${month}-${day}`;
-
-                this.state.schedules.wiro.date = today;
-                this.state.schedules.ipgwan.date = today;
-                this.state.schedules.balin.date = today;
-
-                this.renderScheduleInputs();
-                this.render();
-            },
-
-            // --- State Actions ---
-            setMode(mode) {
-                this.state.mode = mode;
-
-                // Church Departure Defaults (District: False, Church: True)
-                const isChurch = (mode === 'church');
-                this.state.churchDeparture.ipgwan = isChurch;
-                this.state.churchDeparture.balin = isChurch;
-
-                const chkIpgwan = document.getElementById('chk-ipgwan-church');
-                const chkBalin = document.getElementById('chk-balin-church');
-                if (chkIpgwan) chkIpgwan.checked = isChurch;
-                if (chkBalin) chkBalin.checked = isChurch;
-
-                // UI Toggle Logic
-                document.getElementById('btn-mode-district').className = mode === 'district' ? "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-indigo-600 bg-white shadow-sm" : "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700";
-                document.getElementById('btn-mode-church').className = mode === 'church' ? "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-indigo-600 bg-white shadow-sm" : "px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700";
-
-                // Mobile
-                document.getElementById('btn-mode-district-m').className = mode === 'district' ? "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all text-indigo-600 bg-indigo-50" : "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-500";
-                document.getElementById('btn-mode-church-m').className = mode === 'church' ? "flex-1 py-2.5 rounded-lg text-sm font-bold transition-all text-indigo-600 bg-indigo-50" : "flex-1 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-500";
-
-                // Fields
-                document.getElementById('wrapper-relation').style.display = mode === 'district' ? 'block' : 'none';
-                document.getElementById('wrapper-joint').style.display = mode === 'church' ? 'block' : 'none';
-                document.getElementById('wrapper-individual-toggle').style.display = mode === 'district' ? 'flex' : 'none';
-
-                // Reset Individual toggle when switching modes
-                if (mode === 'church') {
-                    this.state.isIndividual = false;
-                    document.getElementById('toggle-individual').checked = false;
-                }
-
-                this.renderScheduleInputs();
-                this.render();
-            },
-
-            setPreviewTab(tab) {
-                this.state.previewTab = tab;
-                document.getElementById('btn-tab-simple').className = tab === 'simple' ? "px-3 py-1 text-xs font-bold rounded-full bg-indigo-100 text-indigo-700" : "px-3 py-1 text-xs font-medium rounded-full text-slate-500 hover:bg-slate-100";
-                document.getElementById('btn-tab-detail').className = tab === 'detail' ? "px-3 py-1 text-xs font-bold rounded-full bg-indigo-100 text-indigo-700" : "px-3 py-1 text-xs font-medium rounded-full text-slate-500 hover:bg-slate-100";
-                this.render();
-            },
-
-            updateState(path, value) {
-                const parts = path.split('.');
-                if (parts.length === 1) {
-                    this.state[parts[0]] = value;
-                } else {
-                    this.state[parts[0]][parts[1]] = value;
-                }
-                this.render();
-            },
-
-            toggleIndividual(checked) {
-                this.state.isIndividual = checked;
-                this.renderScheduleInputs();
-                this.render();
-            },
-
-            toggleDetails() {
-                const el = document.getElementById('details-content');
-                const icon = document.getElementById('icon-details-toggle');
-                el.classList.toggle('hidden');
-                icon.style.transform = el.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-            },
-
-            // --- Logic: Generator ---
-            generateText() {
-                const s = this.state;
-                if (!s.district && !s.deceased.name) return "정보를 입력하면 미리보기가 표시됩니다.";
-
-                // 1. Header Construction
-                let header = "";
-                let body = "";
-
-                const distName = Utils.clean(s.district).replace(/교구/g, '');
-                const mName = Utils.clean(s.deceased.name);
-                const mTitle = s.deceased.title;
-                const mSpouse = Utils.clean(s.deceased.spouse);
-                const mSpouseTitle = s.deceased.spouseTitle;
-
-                const buildName = (n, t, sn, st) => {
-                    if (!n) return "";
-                    if (!sn) return `${n}${t}`;
-                    if (t === st) return `${n}(${sn})${t}`;
-                    return `${n}${t}(${sn}${st})`;
-                };
-
-                if (s.mode === 'district') {
-                    header = `[교구장-${distName}]`;
-                    const rel = Utils.clean(s.deceased.relation).replace(/소천/g, '');
-                    const nameStr = buildName(mName, mTitle, mSpouse, mSpouseTitle);
-                    body = `${nameStr}${rel}소천`;
-                } else {
-                    // Church Mode
-                    let headerText = `교회장-${distName}`;
-                    const nameStr = buildName(`故${mName}`, mTitle, mSpouse, mSpouseTitle);
-                    body = `${nameStr}소천`;
-
-                    // Joint
-                    s.joints.forEach(j => {
-                        const jDist = Utils.clean(j.district).replace(/교구/g, '');
-                        const jName = Utils.clean(j.name);
-                        if (jDist && jName) {
-                            headerText += `/${j.type}-${jDist}`;
-                            body += `/${buildName(jName, j.title, j.spouse, j.spouseTitle)}${Utils.clean(j.relation)}`;
-                        }
-                    });
-                    header = `[${headerText}]`;
-                }
-
-                // 2. Schedule Logic
-                const getTimeStr = (key, suffix = "") => {
-                    const t = s.schedules[key];
-                    if (!t.date || !t.hour) return "";
-                    // Check if minutes exist
-                    const min = parseInt(t.min) || 0;
-                    const timePart = (min === 0) ? `${t.ampm}${t.hour}시` : `${t.ampm}${t.hour}:${Utils.pad(min)}`; // Keep simple for LMS
-                    return `${Utils.formatDate(t.date)}${timePart}${suffix}`;
-                };
-
-                if (s.mode === 'district') {
-                    if (s.isIndividual) {
-                        const balin = s.schedules.balin;
-                        if (balin.date) body += `/개별조문/발인:${Utils.formatDate(balin.date)}`;
-                    } else {
-                        const wiro = getTimeStr('wiro', '교회출');
-                        if (wiro) body += `/위로:${wiro}`;
-                    }
-                } else {
-                    const wiro = getTimeStr('wiro', '교회출');
-                    const ipgwan = getTimeStr('ipgwan', '교회출');
-                    const sendoff = getTimeStr('balin', '교회출');
-                    if (wiro) body += `/위로:${wiro}`;
-                    if (ipgwan) body += `/입관:${ipgwan}`;
-                    if (sendoff) body += `/천국환송:${sendoff}`;
-                }
-
-                // 3. Location
-                if (s.location) body += `/${Utils.clean(s.location)}`;
-
-                return `${header}${body}`;
-            },
-
-            // --- Optimization Logic ---
-            getOptimizedText(text) {
-                if (!text) return "";
-
-                // 1. Remove Spaces
-                let opt = text.replace(/\s+/g, ' ').trim();
-
-                // 2. Shorten Labels (Always apply these for optimization)
-                opt = opt.replace(/위로예배/g, '위로');
-                opt = opt.replace(/입관예배/g, '입관');
-                opt = opt.replace(/발인예배/g, '발인');
-                opt = opt.replace(/천국환송예배/g, '천국환송');
-                opt = opt.replace(/장례식장/g, '빈소');
-
-                // 3. Aggressive Shortening if still > 90 bytes
-                if (Utils.getByteLength(opt) > 90) {
-                    opt = opt.replace(/교회출발/g, '교출');
-                    opt = opt.replace(/\(교회출\)/g, '');
-                }
-
-                if (Utils.getByteLength(opt) > 90) {
-                    opt = opt.replace(/\([월화수목금토일]\)/g, '');
-                    opt = opt.replace(/\(오늘\)/g, '');
-                }
-
-                if (Utils.getByteLength(opt) > 90) {
-                    opt = opt.replace(/故/g, '');
-                }
-
-                return opt;
-            },
-
-            applyOptimization() {
-                const suggestion = document.getElementById('suggestion-text').innerText;
-                if (!suggestion) return;
-
-                // Since this is a view-only change in the current architecture (preview-text is derived),
-                // we technically can't "set" the state back easily without parsing.
-                // HOWEVER, the user asked to "recommend". 
-                // If we want to Apply, we might just update the preview text DOM and stop rendering for a moment?
-                // OR, simply copy the optimized text to clipboard?
-                // The current app derives text fully from state. modifying text directly means it will be overwritten on next render.
-                // Given the structure, "Applying" might be tricky without reverse-engineering state.
-                // A better approach for now: Just copy it or let user copy it. 
-                // User requirement: "Recommend below".
-                // Let's make the "Apply" button just update the visual preview and maybe stop auto-rendering?
-                // No, better to just let them COPY the optimized version directly.
-                // WAIT, if I update the preview DOM, `copyText` picks it up.
-
-                const previewEl = document.getElementById('preview-text');
-                previewEl.innerText = suggestion;
-
-                // Manually trigger render updates for byte counter, but skip generating text
-                const bytes = Utils.getByteLength(suggestion);
-                this.updateByteCounter(bytes);
-
-                // Hide suggestion since we applied it
-                document.getElementById('suggestion-box').classList.add('hidden');
-            },
-
-            updateByteCounter(bytes) {
-                const badgeClass = bytes <= 90 ? "text-green-600 bg-green-100" : "text-amber-600 bg-amber-100";
-                const badgeLabel = bytes <= 90 ? "SMS" : "LMS";
-
-                document.getElementById('byte-counter').innerHTML = `
-                    <span class="font-bold text-slate-700">${bytes}</span> Bytes 
-                    <span class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
-                `;
-            },
-
-            generateDetailText() {
-                const s = this.state;
-                if (!s.district && !s.deceased.name) return "상세 정보를 보시려면 기본 정보를 입력해주세요.";
-
-                const distName = Utils.clean(s.district).replace(/교구/g, '');
-                const mName = Utils.clean(s.deceased.name);
-                const mTitle = s.deceased.title;
-                const mSpouse = Utils.clean(s.deceased.spouse);
-                const mSpouseTitle = s.deceased.spouseTitle;
-
-                const buildName = (n, t, sn, st) => {
-                    if (!n) return "";
-                    if (!sn) return `${n}${t}`;
-                    if (t === st) return `${n}(${sn})${t}`;
-                    return `${n}${t}(${sn}${st})`;
-                };
-
-                let header = "";
-                if (s.mode === 'district') {
-                    header = `[교구장-${distName}] ${buildName(mName, mTitle, mSpouse, mSpouseTitle)} ${Utils.clean(s.deceased.relation)} 소천`;
-                } else {
-                    header = `[교회장-${distName}] 故${buildName(mName, mTitle, mSpouse, mSpouseTitle)} 소천`;
-                }
-
-                let body = "";
-
-                const formatTimeLong = (t) => {
-                    const min = parseInt(t.min) || 0;
-                    return `${t.ampm} ${t.hour}:${Utils.pad(min)}`;
-                };
-
-                const getLine = (label, key, isChurchKey) => {
-                    const t = s.schedules[key];
-                    if (!t.date || !t.hour) return `${label}: -\n`;
-                    const church = s.churchDeparture[isChurchKey] ? " (교회출발)" : "";
-                    return `${label}: ${Utils.formatDateLong(t.date)} ${formatTimeLong(t)}${church}\n`;
-                };
-
-                body += getLine("위로", "wiro", "wiro");
-                body += getLine("입관", "ipgwan", "ipgwan");
-
-                const balinLabel = "발인";
-                body += getLine(balinLabel, "balin", "balin");
-
-                body += `빈소: ${s.location || '-'}\n`;
-                body += `장지: ${s.jangji ? Utils.normalizeWeekdayLabel(s.jangji) : '-'}`;
-
-                return `${header}\n\n${body}`;
-            },
-
-
-            // --- Render Logic ---
-            renderScheduleInputs() {
-                const containerWiro = document.getElementById('schedule-wiro');
-                const containerIpgwan = document.getElementById('schedule-ipgwan');
-                const containerBalin = document.getElementById('schedule-balin');
-                const extraContainer = document.getElementById('extra-schedule-district');
-
-                // Clear previous content
-                if (containerWiro) containerWiro.innerHTML = '';
-                if (containerIpgwan) containerIpgwan.innerHTML = '';
-                if (containerBalin) containerBalin.innerHTML = '';
-                if (extraContainer) extraContainer.innerHTML = '';
-
-                // Helper to create row safely
-                const createRow = (label, key) => {
-                    const tmpl = document.getElementById('tmpl-schedule-row');
-                    if (!tmpl) return document.createElement('div');
-
-                    const clone = tmpl.content.cloneNode(true);
-
-                    const labelDiv = clone.querySelector('.label-name');
-                    if (labelDiv) labelDiv.textContent = label;
-
-                    const dateInput = clone.querySelector('.input-date');
-                    if (dateInput) {
-                        dateInput.value = this.state.schedules[key].date;
-                        dateInput.onchange = (e) => { this.state.schedules[key].date = e.target.value; this.render(); };
-                    }
-
-                    const ampmInput = clone.querySelector('.input-ampm');
-                    if (ampmInput) {
-                        ampmInput.value = this.state.schedules[key].ampm;
-                        ampmInput.onchange = (e) => { this.state.schedules[key].ampm = e.target.value; this.render(); };
-                    }
-
-                    const hourInput = clone.querySelector('.input-hour');
-                    if (hourInput) {
-                        hourInput.value = this.state.schedules[key].hour;
-                        hourInput.oninput = (e) => { this.state.schedules[key].hour = e.target.value; this.render(); };
-                    }
-
-                    const minInput = clone.querySelector('.input-min');
-                    if (minInput) {
-                        minInput.value = this.state.schedules[key].min;
-                        minInput.oninput = (e) => { this.state.schedules[key].min = e.target.value; this.render(); };
-                    }
-
-                    return clone;
-                };
-
-                const toggleVisibility = (el, show) => {
-                    if (el) el.style.display = show ? 'flex' : 'none';
-                };
-
-                const chkIpgwanLabel = document.getElementById('chk-ipgwan-church')?.closest('label');
-                const chkBalinLabel = document.getElementById('chk-balin-church')?.closest('label');
-
-                if (this.state.mode === 'district') {
-                    // District mode:
-                    // - Individual condolence: main card uses date-only sendoff input
-                    // - Detail card keeps ipgwan/balin inputs for church bulletin detail
-                    if (this.state.isIndividual) {
-                        if (containerBalin) {
-                            const balinRow = createRow('발인일', 'balin');
-                            const timeInputs = balinRow.querySelector('.col-span-4');
-                            if (timeInputs) timeInputs.style.visibility = 'hidden';
-                            containerBalin.appendChild(balinRow);
-                        }
-                    } else {
-                        if (containerWiro) containerWiro.appendChild(createRow('위로예배', 'wiro'));
-                    }
-
-                    if (extraContainer) {
-                        extraContainer.classList.remove('hidden');
-                        extraContainer.appendChild(createRow('입관예배', 'ipgwan'));
-                        extraContainer.appendChild(createRow('발인예배', 'balin'));
-
-                        // Hide "Church Departure" Checkboxes in district mode
-                        toggleVisibility(chkIpgwanLabel, false);
-                        toggleVisibility(chkBalinLabel, false);
-                    }
-                    if (containerIpgwan) containerIpgwan.classList.add('hidden');
-
-                } else {
-                    // Church Mode Logic
-                    if (containerWiro) containerWiro.appendChild(createRow('위로예배', 'wiro'));
-                    if (containerIpgwan) {
-                        containerIpgwan.appendChild(createRow('입관예배', 'ipgwan'));
-                        containerIpgwan.classList.remove('hidden');
-                    }
-                    if (containerBalin) containerBalin.appendChild(createRow('천국환송', 'balin'));
-
-                    // Hide Extra Container
-                    if (extraContainer) extraContainer.classList.add('hidden');
-
-                    // Show Church Departure Checkboxes
-                    toggleVisibility(chkIpgwanLabel, true);
-                    toggleVisibility(chkBalinLabel, true);
-                }
-            },
-
-            addJoint() {
-                this.state.joints.push({ type: '교구장', district: '', name: '', title: '', spouse: '', spouseTitle: '', relation: '' });
-                this.renderJoints();
-                this.render();
-            },
-
-            removeJoint(index) {
-                this.state.joints.splice(index, 1);
-                this.renderJoints();
-                this.render();
-            },
-
-            renderJoints() {
-                const list = document.getElementById('joint-list');
-                list.innerHTML = '';
-                this.state.joints.forEach((j, idx) => {
-                    const el = document.createElement('div');
-                    el.className = 'bg-slate-50 p-3 rounded-lg border border-slate-200 relative';
-                    el.innerHTML = `
-                        <div class="flex justify-between mb-2">
-                            <span class="text-xs font-bold text-indigo-500">추가 장례 ${idx + 1}</span>
-                            <button onclick="App.removeJoint(${idx})" class="text-xs text-red-400 hover:text-red-500">삭제</button>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <select onchange="App.state.joints[${idx}].type = this.value; App.render()" class="bg-white border border-slate-200 rounded p-1 text-xs">
-                                <option value="교구장" ${j.type === '교구장' ? 'selected' : ''}>교구장</option>
-                                <option value="교회장" ${j.type === '교회장' ? 'selected' : ''}>교회장</option>
-                            </select>
-                            <input oninput="App.state.joints[${idx}].district = this.value; App.render()" value="${j.district}" placeholder="교구명" class="bg-white border border-slate-200 rounded p-1 text-xs">
-                        </div>
-                         <div class="grid grid-cols-12 gap-1 mb-2">
-                            <input oninput="App.state.joints[${idx}].name = this.value; App.render()" value="${j.name}" placeholder="이름" class="col-span-8 bg-white border border-slate-200 rounded p-1 text-xs">
-                             <select onchange="App.state.joints[${idx}].title = this.value; App.render()" class="col-span-4 bg-white border border-slate-200 rounded p-1 text-xs">
-                                <option value="">직분</option>
-                                <option value="성도" ${j.title === '성도' ? 'selected' : ''}>성도</option>
-                                <option value="집사" ${j.title === '집사' ? 'selected' : ''}>집사</option>
-                                <option value="권사" ${j.title === '권사' ? 'selected' : ''}>권사</option>
-                                <option value="장로" ${j.title === '장로' ? 'selected' : ''}>장로</option>
-                            </select>
-                        </div>
-                         <div class="grid grid-cols-12 gap-1 mb-2">
-                            <input oninput="App.state.joints[${idx}].spouse = this.value; App.render()" value="${j.spouse}" placeholder="배우자" class="col-span-8 bg-white border border-slate-200 rounded p-1 text-xs">
-                             <select onchange="App.state.joints[${idx}].spouseTitle = this.value; App.render()" class="col-span-4 bg-white border border-slate-200 rounded p-1 text-xs">
-                                <option value="">직분</option>
-                                <option value="성도">성도</option>
-                                <option value="권사">권사</option>
-                                <option value="장로">장로</option>
-                            </select>
-                        </div>
-                        <input oninput="App.state.joints[${idx}].relation = this.value; App.render()" value="${j.relation}" placeholder="관계" class="w-full bg-white border border-slate-200 rounded p-1 text-xs">
-                    `;
-                    list.appendChild(el);
-                });
-            },
-
-            render() {
-                // Determine text based on tab
-                let text = "";
-                if (this.state.previewTab === 'simple') {
-                    text = this.generateText();
-                } else {
-                    text = this.generateDetailText();
-                }
-
-                // Update Preview Box
-                const previewEl = document.getElementById('preview-text');
-                previewEl.innerText = text;
-
-                // Update Byte Count
-                const bytes = Utils.getByteLength(text);
-                const badgeClass = bytes <= 90 ? "text-green-600 bg-green-100" : "text-amber-600 bg-amber-100";
-                const badgeLabel = bytes <= 90 ? "SMS" : "LMS";
-
-                document.getElementById('byte-counter').innerHTML = `
-                    <span class="font-bold text-slate-700">${bytes}</span> Bytes 
-                    <span class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
-                `;
-
-                // Update Suggestion Box
-                const suggestionBox = document.getElementById('suggestion-box');
-                const suggestionText = document.getElementById('suggestion-text');
-                const suggestionBytes = document.getElementById('suggestion-bytes');
-
-                if (bytes > 90) {
-                    const optimized = this.getOptimizedText(text);
-                    const optBytes = Utils.getByteLength(optimized);
-
-                    // Show suggestion only if it actually reduces size
-                    if (optBytes < bytes) {
-                        suggestionText.innerText = optimized;
-                        suggestionBytes.innerText = `(${optBytes} Bytes)`;
-                        suggestionBytes.className = optBytes <= 90 ? "text-[10px] font-bold text-green-600" : "text-[10px] font-bold text-amber-600";
-                        suggestionBox.classList.remove('hidden');
-                    } else {
-                        suggestionBox.classList.add('hidden');
-                    }
-                } else {
-                    suggestionBox.classList.add('hidden');
-                }
-            },
-
-            // --- Optimization Logic ---
-
-
-
-
-
-            // --- Optimization Logic ---
-            getOptimizedText(text) {
-                if (!text) return "";
-                let opt = text;
-
-                // 1. Remove Spaces first (general cleanup)
-                opt = opt.replace(/\s+/g, ' ').trim();
-
-                let currentBytes = Utils.getByteLength(opt);
-
-                // Only optimize if > 90 bytes
-                if (currentBytes > 90) {
-                    // Church Departure -> Shorten
-                    opt = opt.replace(/교회출발/g, '교출');
-
-                    // If still > 90, remove "Sochun"
-                    if (Utils.getByteLength(opt) > 90) {
-                        opt = opt.replace(/소천/g, '');
-                    }
-                }
-
-                return opt;
-            },
-
-            applyOptimization() {
-                const suggestion = document.getElementById('suggestion-text').innerText;
-                if (!suggestion) return;
-
-                const previewEl = document.getElementById('preview-text');
-                previewEl.innerText = suggestion;
-
-                // Update Byte Count
-                const bytes = Utils.getByteLength(suggestion);
-                const badgeClass = bytes <= 90 ? "text-green-600 bg-green-100" : "text-amber-600 bg-amber-100";
-                const badgeLabel = bytes <= 90 ? "SMS" : "LMS";
-
-                document.getElementById('byte-counter').innerHTML = `
-                    <span class="font-bold text-slate-700">${bytes}</span> Bytes 
-                    <span class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
-                `;
-
-                document.getElementById('suggestion-box').classList.add('hidden');
-                this.showToast("최적화된 내용이 적용되었습니다.");
-            },
-
-            copyText() {
-                const text = document.getElementById('preview-text').innerText;
-                if (!text) {
-                    this.showToast("복사할 내용이 없습니다.", true);
-                    return;
-                }
-                Utils.copyToClipboard(text);
-            },
-
-            showToast(msg, isError = false) {
-                const container = document.getElementById('toast-container');
-                const el = document.createElement('div');
-                const bgClass = isError ? 'bg-red-500' : 'bg-slate-800';
-
-                el.className = `${bgClass} text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg shadow-black/10 flex items-center gap-2 transform translate-y-5 opacity-0 transition-all duration-300`;
-                el.innerHTML = `
-                    <i class="${isError ? 'ri-error-warning-fill' : 'ri-checkbox-circle-fill'} text-lg"></i>
-                    <span>${msg}</span>
-                `;
-
-                container.appendChild(el);
-
-                // Animate In
-                setTimeout(() => { el.classList.remove('translate-y-5', 'opacity-0'); }, 10);
-
-                // Animate Out
-                setTimeout(() => {
-                    el.classList.add('opacity-0', '-translate-y-2');
-                    setTimeout(() => el.remove(), 300);
-                }, 2000);
+            } else {
+                if (h > 12) h -= 12;
             }
-        };
 
-        // Initialize
-        window.onload = () => App.init();
+            return { h, m, isAm: isAm || (!isAm && !isPm && h < 12), isPm, valid: true };
+        }
 
+        // *** 수정된 부분: 오전/오후 뒤의 공백 제거 ***
+        function formatTime(text, forceMinutes = false) {
+            const parsed = parseTime(text);
+            if (!parsed.valid) return text || "";
+
+            const { h, m, isPm } = parsed;
+            const p = isPm ? "오후" : "오전";
+
+            if (m === 0 && !forceMinutes) {
+                return `${p}${h}시`; // 공백 제거
+            } else {
+                return `${p}${h}:${String(m).padStart(2, '0')}`; // 공백 제거
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "";
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const target = new Date(y, m - 1, d);
+            const today = new Date();
+            target.setHours(0, 0, 0, 0); today.setHours(0, 0, 0, 0);
+            const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+            return (target.getTime() === today.getTime()) ? `${d}일(오늘)` : `${d}일(${weekDays[target.getDay()]})`;
+        }
+
+        function combineDateTime(dateId, timeId, forceMinutes = false) {
+            const timeVal = formatTime(document.getElementById(timeId).value, forceMinutes);
+            if (!timeVal) return "";
+            return `${formatDate(document.getElementById(dateId).value)}${timeVal}`;
+        }
+
+        function getByteLength(s) {
+            let b = 0;
+            for (let i = 0; i < s.length; i++) {
+                const c = s.charCodeAt(i);
+                b += (c >> 7) ? 2 : 1;
+            }
+            return b;
+        }
+
+        function buildPersonName(n, t, spouseN, spouseT) {
+            if (!n) return "";
+            if (!spouseN) return `${n}${t}`;
+            if (t === spouseT) return `${n}(${spouseN})${t}`;
+            return `${n}${t}(${spouseN}${spouseT})`;
+        }
+
+        function setMode(mode) {
+            document.getElementById('mode').value = mode;
+            const isDistrict = (mode === 'district');
+            const isChurch = (mode === 'church');
+
+            document.getElementById('btn-district').classList.toggle('active', isDistrict);
+            document.getElementById('btn-church').classList.toggle('active', isChurch);
+
+            document.getElementById('district-section').classList.toggle('hidden', !isDistrict);
+            document.getElementById('church-section').classList.toggle('hidden', !isChurch);
+            document.getElementById('relation-area').style.display = isDistrict ? 'flex' : 'none';
+
+            document.getElementById('joint-wrapper').classList.toggle('hidden', !isChurch);
+            document.getElementById('ko-tag').style.display = isChurch ? 'inline' : 'none';
+        }
+
+        function toggleIndividual() {
+            const isIndividual = document.getElementById('isIndividual').checked;
+            document.getElementById('group-wiro').classList.toggle('hidden', isIndividual);
+            document.getElementById('group-individual').classList.toggle('hidden', !isIndividual);
+        }
+
+        function addJointCard() {
+            const container = document.getElementById('joint-container');
+            const count = container.children.length + 1;
+
+            const cardHTML = `
+        <div class="joint-card">
+            <div class="joint-header">
+                <span>추가 장례 ${count}</span>
+                <div style="display:flex; gap:5px; align-items:center;">
+                    <button class="btn-delete" onclick="this.closest('.joint-card').remove()">삭제</button>
+                    <select class="joint-select j-type"><option value="교구장">교구장</option><option value="교회장">교회장</option></select>
+                </div>
+            </div>
+            <div class="input-group"><div class="input-wrapper"><input type="text" class="custom-input j-district" placeholder="추가 교구명 (예: 교구)"></div></div>
+            <div class="row-grid">
+                <div class="input-wrapper col-7"><input type="text" class="custom-input j-name" placeholder="이름 (예: 홍길동)"></div>
+                <div class="input-wrapper col-3"><select class="custom-input j-title"><option value="">직분</option><option value="성도">성도</option><option value="집사">집사</option><option value="안수집사">안수</option><option value="권사">권사</option><option value="장로">장로</option></select></div>
+            </div>
+            <div class="row-grid">
+                <div class="input-wrapper col-7"><input type="text" class="custom-input j-spouse" placeholder="배우자 (빈칸 가능)"></div>
+                <div class="input-wrapper col-3"><select class="custom-input j-spouse-title"><option value="">직분</option><option value="성도">성도</option><option value="집사">집사</option><option value="안수집사">안수</option><option value="권사">권사</option><option value="장로">장로</option></select></div>
+            </div>
+            <div class="input-group"><div class="input-wrapper"><input type="text" class="custom-input j-rel" placeholder="관계 (예: 부친)"></div></div>
+        </div>`;
+            container.insertAdjacentHTML('beforeend', cardHTML);
+        }
+
+        function createResultBoxHTML(title, text, bytes, type, id) {
+            let badgeClass = (bytes <= 90) ? "sms" : "lms";
+            let badgeText = (bytes <= 90) ? "SMS" : "LMS";
+            let boxClass = (type === 'opt') ? "result-box highlight" : (type === 'warn' ? "result-box warning" : "result-box");
+            let btnClass = (type === 'opt') ? "btn-copy green" : "btn-copy";
+
+            return `
+        <div class="${boxClass}">
+            <div class="box-header">
+                <div class="box-title">${title}</div>
+                <div class="byte-info">
+                    ${bytes} Byte <span class="byte-badge ${badgeClass}">${badgeText}</span>
+                </div>
+            </div>
+            <div class="result-text" id="text-${id}">${text}</div>
+            <button class="${btnClass}" onclick="copyToClipboard('text-${id}')">
+                <i class="ri-file-copy-line"></i> 복사하기
+            </button>
+        </div>`;
+        }
+
+        // *** 수정된 부분: 생성 시 불필요한 공백 제거 ***
+        function generate() {
+            const mode = document.getElementById('mode').value;
+            const mainDistrict = clean(document.getElementById('district').value).replace(/교구/g, '');
+            const location = clean(document.getElementById('location').value);
+            const resultArea = document.getElementById('resultArea');
+            resultArea.innerHTML = "";
+
+            let mName = clean(document.getElementById('name1').value);
+            let mTitle = document.getElementById('title1').value;
+            let mSpouse = clean(document.getElementById('name2').value);
+            let mSpouseTitle = document.getElementById('title2').value;
+
+            if (!mainDistrict || !mName || !location) {
+                alert('필수 정보(교구, 이름, 장소)를 입력해주세요.');
+                return;
+            }
+
+            let fullText = "";
+
+            if (mode === 'district') {
+                let header = `[교구장-${mainDistrict}]`;
+                let rel = clean(document.getElementById('relation').value).replace(/소천/g, '');
+                let nameStr = buildPersonName(mName, mTitle, mSpouse, mSpouseTitle);
+                let body = `${nameStr}${rel}소천`; // 띄어쓰기 제거
+
+                const isIndividual = document.getElementById('isIndividual').checked;
+                if (isIndividual) {
+                    let balinDate = document.getElementById('date_balin').value;
+                    if (!balinDate) { alert('발인 날짜를 입력해주세요.'); return; }
+                    body += `/개별조문/발인:${formatDate(balinDate)}`;
+                } else {
+                    let wiro = combineDateTime('date_wiro_district', 'time_wiro_district');
+                    if (!wiro) { alert('위로예배 시간을 입력해주세요.'); return; }
+                    body += `/위로:${wiro}교회출`; // 띄어쓰기 제거
+                }
+                fullText = `${header}${body}/${location}`;
+
+            } else {
+                let headerText = `교회장-${mainDistrict}`;
+                let nameStr = buildPersonName("故" + mName, mTitle, mSpouse, mSpouseTitle);
+                let body = `${nameStr}소천`;
+
+                const cards = document.querySelectorAll('.joint-card');
+                cards.forEach(card => {
+                    let jType = card.querySelector('.j-type').value;
+                    let jDist = clean(card.querySelector('.j-district').value).replace(/교구/g, '');
+                    let jName = clean(card.querySelector('.j-name').value);
+                    let jTitle = card.querySelector('.j-title').value;
+                    let jSpouse = clean(card.querySelector('.j-spouse').value);
+                    let jSpouseTitle = card.querySelector('.j-spouse-title').value;
+                    let jRel = clean(card.querySelector('.j-rel').value);
+
+                    if (jDist && jName) {
+                        headerText += `/${jType}-${jDist}`;
+                        let jNameStr = buildPersonName(jName, jTitle, jSpouse, jSpouseTitle);
+                        body += `/${jNameStr}${jRel}`;
+                    }
+                });
+                let header = `[${headerText}]`;
+
+                const rawTimes = [
+                    document.getElementById('time_wiro_church').value,
+                    document.getElementById('time_ipgwan').value,
+                    document.getElementById('time_sendoff').value
+                ];
+                const hasMinutes = rawTimes.some(t => {
+                    const parsed = parseTime(t);
+                    return parsed.valid && parsed.m > 0;
+                });
+
+                let wiro = combineDateTime('date_wiro_church', 'time_wiro_church', hasMinutes);
+                let ipgwan = combineDateTime('date_ipgwan', 'time_ipgwan', hasMinutes);
+                let sendoff = combineDateTime('date_sendoff', 'time_sendoff', hasMinutes);
+
+                if (wiro) body += `/위로:${wiro}교회출`;
+                if (ipgwan) body += `/입관:${ipgwan}교회출`;
+                if (sendoff) body += `/천국환송:${sendoff}교회출`;
+                fullText = `${header}${body}/${location}`;
+            }
+
+            let fullBytes = getByteLength(fullText);
+            let resultHTML = "";
+
+            if (mode === 'district') {
+                if (fullBytes <= 90) {
+                    resultHTML = createResultBoxHTML("생성 결과", fullText, fullBytes, "normal", "res1");
+                } else {
+                    resultHTML += createResultBoxHTML("⚠️ 원본 (LMS)", fullText, fullBytes, "warn", "res1");
+                    let shortText = fullText.replace(/교회출/g, '교출');
+                    if (getByteLength(shortText) > 90) {
+                        shortText = shortText.replace(/소천/g, '');
+                    }
+                    let shortBytes = getByteLength(shortText);
+                    resultHTML += createResultBoxHTML("✨ 추천 단축안 (" + (shortBytes <= 90 ? "SMS" : "LMS") + ")", shortText, shortBytes, "opt", "res2");
+                }
+            } else {
+                resultHTML = createResultBoxHTML("생성 결과", fullText, fullBytes, "normal", "res1");
+            }
+
+            resultHTML += `
+            <div style="margin-top:20px; text-align:center;">
+                <p style="font-size:13px; color:#888; margin-bottom:10px;">👇 추가 정보를 넣어 교우소식을 완성하세요</p>
+                <button class="btn-add-secondary" onclick="startStep2()" style="border:1px solid var(--primary); color:var(--primary);">
+                    <i class="ri-article-line"></i> 교우소식(상세) 작성하기
+                </button>
+            </div>
+        `;
+
+            resultArea.innerHTML = resultHTML;
+            resultArea.style.display = 'block';
+            resultArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('복사되었습니다!');
+            });
+        }
+
+        // --- Step 2 Logic (여기는 가독성을 위해 공백 유지 가능) ---
+        function startStep2() {
+            const section = document.getElementById('step2-section');
+            section.classList.remove('hidden');
+
+            const mode = document.getElementById('mode').value;
+            const mainDistrict = clean(document.getElementById('district').value).replace(/교구/g, '');
+            let mName = clean(document.getElementById('name1').value);
+            let mTitle = document.getElementById('title1').value;
+            let mSpouse = clean(document.getElementById('name2').value);
+            let mSpouseTitle = document.getElementById('title2').value;
+            let header = "";
+
+            if (mode === 'district') {
+                header = `[교구장-${mainDistrict}] ${buildPersonName(mName, mTitle, mSpouse, mSpouseTitle)} ${clean(document.getElementById('relation').value)} 소천`;
+                copyDateTimeToStep2('date_wiro_district', 'time_wiro_district', 's2_date_wiro', 's2_time_wiro');
+                document.getElementById('s2_chk_wiro').checked = true;
+                document.getElementById('s2_chk_ip').checked = false;
+                document.getElementById('s2_chk_bal').checked = false;
+            } else {
+                let names = `故${mName}${mTitle}(${mSpouse}${mSpouseTitle})`;
+                header = `[교회장-${mainDistrict}] ${names} 소천`;
+                copyDateTimeToStep2('date_wiro_church', 'time_wiro_church', 's2_date_wiro', 's2_time_wiro');
+                copyDateTimeToStep2('date_ipgwan', 'time_ipgwan', 's2_date_ip', 's2_time_ip');
+                copyDateTimeToStep2('date_sendoff', 'time_sendoff', 's2_date_bal', 's2_time_bal');
+                document.getElementById('s2_chk_wiro').checked = true;
+                document.getElementById('s2_chk_ip').checked = true;
+                document.getElementById('s2_chk_bal').checked = true;
+            }
+            document.getElementById('s2_header').value = header;
+            document.getElementById('s2_binso').value = document.getElementById('location').value;
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function copyDateTimeToStep2(srcDateId, srcTimeId, tgtDateId, tgtTimeId) {
+            const d = document.getElementById(srcDateId).value;
+            const t = document.getElementById(srcTimeId).value;
+            if (d) document.getElementById(tgtDateId).value = d;
+            if (t) document.getElementById(tgtTimeId).value = t;
+        }
+
+        function getDayOfWeek(dateStr) {
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const date = new Date(dateStr);
+            return days[date.getDay()];
+        }
+
+        function formatLongDate(dateStr) {
+            if (!dateStr) return "";
+            const [y, m, d] = dateStr.split('-');
+            const day = getDayOfWeek(dateStr);
+            return `${Number(m)}월 ${Number(d)}일(${day})`;
+        }
+
+        // 교우소식 상세 버전용 시간 포맷 (한 칸 공백 허용)
+        function formatTimeLong(text, forceMinutes = false) {
+            const parsed = parseTime(text);
+            if (!parsed.valid) return text || "";
+            const { h, m, isPm } = parsed;
+            const p = isPm ? "오후" : "오전";
+            if (m === 0 && !forceMinutes) return `${p} ${h}시`;
+            else return `${p} ${h}:${String(m).padStart(2, '0')}`;
+        }
+
+        function generateStep2() {
+            const header = document.getElementById('s2_header').value;
+            const binso = document.getElementById('s2_binso').value;
+            const jangji = document.getElementById('s2_jangji').value;
+
+            let body = "";
+            const wDate = document.getElementById('s2_date_wiro').value;
+            const wRawTime = document.getElementById('s2_time_wiro').value;
+            const wChurch = document.getElementById('s2_chk_wiro').checked ? " 교회출발" : "";
+
+            const iDate = document.getElementById('s2_date_ip').value;
+            const iRawTime = document.getElementById('s2_time_ip').value;
+            const iChurch = document.getElementById('s2_chk_ip').checked ? " 교회출발" : "";
+
+            const bDate = document.getElementById('s2_date_bal').value;
+            const bRawTime = document.getElementById('s2_time_bal').value;
+            const bChurch = document.getElementById('s2_chk_bal').checked ? " 교회출발" : "";
+
+            const rawTimes = [wRawTime, iRawTime, bRawTime];
+            const hasMinutes = rawTimes.some(t => {
+                const parsed = parseTime(t);
+                return parsed.valid && parsed.m > 0;
+            });
+
+            if (wDate && wRawTime) body += `위로: ${formatLongDate(wDate)} ${formatTimeLong(wRawTime, hasMinutes)}${wChurch}\n`;
+            if (iDate && iRawTime) body += `입관: ${formatLongDate(iDate)} ${formatTimeLong(iRawTime, hasMinutes)}${iChurch}\n`;
+
+            const mode = document.getElementById('mode').value;
+            const balLabel = (mode === 'church') ? "천국환송" : "발인";
+
+            if (bDate && bRawTime) body += `${balLabel}: ${formatLongDate(bDate)} ${formatTimeLong(bRawTime, hasMinutes)}${bChurch}\n`;
+
+            body += `빈소: ${binso}\n`;
+            if (jangji) body += `장지: ${jangji}`;
+
+            const finalMsg = `${header}\n\n${body}`;
+            const resBox = createResultBoxHTML("교우소식 완성본", finalMsg, getByteLength(finalMsg), "normal", "res_step2");
+            document.getElementById('step2-result').innerHTML = resBox;
+            document.getElementById('step2-result').style.display = 'block';
+        }
     </script>
 </body>
 
