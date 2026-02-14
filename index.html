@@ -277,13 +277,6 @@
                         class="ri-arrow-down-s-line text-slate-400 text-xl transition-transform"></i>
                 </div>
                 <div id="details-content" class="hidden p-5 space-y-4 bg-slate-50/30">
-                    <p class="text-xs text-slate-500 mb-2">※ 양식은 고정이며 일정/장소만 입력하면 자동 생성됩니다.</p>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-1">고정 출력 양식</label>
-                        <div class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-500 font-mono">
-                            [교구장-가락] ... / 위로 / 입관 / 발인 / 빈소 / 장지
-                        </div>
-                    </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-1">장지 (선산/납골당)</label>
                         <input type="text" id="input-jangji" placeholder="예: 시안가족추모공원"
@@ -818,31 +811,17 @@
                 const chkBalinLabel = document.getElementById('chk-balin-church')?.closest('label');
 
                 if (this.state.mode === 'district') {
-                    // District Mode Logic
-                    if (this.state.isIndividual) {
-                        // Individual Condolence Mode
-                        if (extraContainer) extraContainer.classList.add('hidden');
+                    // District mode always exposes all three schedule time inputs
+                    if (containerWiro) containerWiro.appendChild(createRow('위로예배', 'wiro'));
 
-                        if (containerBalin) {
-                            const balinRow = createRow('발인', 'balin');
-                            const timeInputs = balinRow.querySelector('.col-span-4');
-                            if (timeInputs) timeInputs.style.visibility = 'hidden';
-                            containerBalin.appendChild(balinRow);
-                        }
-                    } else {
-                        // Standard District Mode
-                        if (containerWiro) containerWiro.appendChild(createRow('위로예배', 'wiro'));
+                    if (extraContainer) {
+                        extraContainer.classList.remove('hidden');
+                        extraContainer.appendChild(createRow('입관예배', 'ipgwan'));
+                        extraContainer.appendChild(createRow('발인예배', 'balin'));
 
-                        // Add Ipgwan & Balin to DETAILS section
-                        if (extraContainer) {
-                            extraContainer.classList.remove('hidden');
-                            extraContainer.appendChild(createRow('입관예배', 'ipgwan'));
-                            extraContainer.appendChild(createRow('발인예배', 'balin'));
-
-                            // Hide "Church Departure" Checkboxes
-                            toggleVisibility(chkIpgwanLabel, false);
-                            toggleVisibility(chkBalinLabel, false);
-                        }
+                        // Hide "Church Departure" Checkboxes in district mode
+                        toggleVisibility(chkIpgwanLabel, false);
+                        toggleVisibility(chkBalinLabel, false);
                     }
                     if (containerIpgwan) containerIpgwan.classList.add('hidden');
 
