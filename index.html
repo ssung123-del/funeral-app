@@ -811,8 +811,19 @@
                 const chkBalinLabel = document.getElementById('chk-balin-church')?.closest('label');
 
                 if (this.state.mode === 'district') {
-                    // District mode always exposes all three schedule time inputs
-                    if (containerWiro) containerWiro.appendChild(createRow('위로예배', 'wiro'));
+                    // District mode:
+                    // - Individual condolence: main card uses date-only sendoff input
+                    // - Detail card keeps ipgwan/balin inputs for church bulletin detail
+                    if (this.state.isIndividual) {
+                        if (containerBalin) {
+                            const balinRow = createRow('발인일', 'balin');
+                            const timeInputs = balinRow.querySelector('.col-span-4');
+                            if (timeInputs) timeInputs.style.visibility = 'hidden';
+                            containerBalin.appendChild(balinRow);
+                        }
+                    } else {
+                        if (containerWiro) containerWiro.appendChild(createRow('위로예배', 'wiro'));
+                    }
 
                     if (extraContainer) {
                         extraContainer.classList.remove('hidden');
