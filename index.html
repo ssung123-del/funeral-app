@@ -279,8 +279,6 @@
                 <div id="details-content" class="hidden p-5 space-y-4 bg-slate-50/30">
                     <p class="text-xs text-slate-500 mb-2">※ 아래 정보를 입력하면 '교우소식' 탭에 상세 내용이 자동 생성됩니다.</p>
                     <div>
-<<<<<<< HEAD
-=======
                         <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-1">교우소식 샘플 입력
                             (선택)</label>
                         <textarea id="input-notice-raw" rows="6"
@@ -290,7 +288,6 @@
                         <p class="text-[11px] text-slate-400 mt-1">샘플 양식: [교구장-가락] ... / 위로 / 입관 / 발인 / 빈소 / 장지</p>
                     </div>
                     <div>
->>>>>>> 0249478 (feat: improve funeral bulletin parsing and order)
                         <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-1">장지 (선산/납골당)</label>
                         <input type="text" id="input-jangji" placeholder="예: 시안가족추모공원"
                             class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-orange-400 text-sm"
@@ -440,11 +437,7 @@
                 const target = new Date(y, m - 1, d);
                 const today = new Date();
                 target.setHours(0, 0, 0, 0); today.setHours(0, 0, 0, 0);
-<<<<<<< HEAD
-                const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-=======
                 const weekDays = ['주일', '월', '화', '수', '목', '금', '토'];
->>>>>>> 0249478 (feat: improve funeral bulletin parsing and order)
                 return (target.getTime() === today.getTime())
                     ? `${d}일(오늘)`
                     : `${d}일(${weekDays[target.getDay()]})`;
@@ -453,18 +446,12 @@
                 if (!dateStr) return "";
                 const [y, m, d] = dateStr.split('-').map(Number);
                 const target = new Date(y, m - 1, d);
-<<<<<<< HEAD
-                const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-                return `${m}월 ${d}일(${weekDays[target.getDay()]})`;
-            },
-=======
                 const weekDays = ['주일', '월', '화', '수', '목', '금', '토'];
                 return `${m}월 ${d}일(${weekDays[target.getDay()]})`;
             },
             normalizeWeekdayLabel: (text) => {
                 return text ? text.replace(/\(일\)/g, '(주일)').trim() : text;
             },
->>>>>>> 0249478 (feat: improve funeral bulletin parsing and order)
             pad: (n) => String(n).padStart(2, '0'),
             copyToClipboard: (text) => {
                 if (!text) return;
@@ -487,11 +474,8 @@
                 isIndividual: false,
                 jangji: '',
                 churchDeparture: { wiro: true, ipgwan: true, balin: true },
-<<<<<<< HEAD
-=======
                 noticeRawInput: '',
                 parsedNotices: [],
->>>>>>> 0249478 (feat: improve funeral bulletin parsing and order)
                 schedules: {
                     wiro: { date: '', ampm: '오전', hour: '', min: '' },
                     ipgwan: { date: '', ampm: '오전', hour: '', min: '' },
@@ -730,11 +714,6 @@
                 `;
             },
 
-
-<<<<<<< HEAD
-            generateDetailText() {
-                const s = this.state;
-=======
             applyNoticeTemplate(rawText) {
                 this.state.noticeRawInput = rawText || "";
                 this.state.parsedNotices = this.parseNoticeTemplate(this.state.noticeRawInput);
@@ -837,8 +816,6 @@
                 if (this.state.parsedNotices && this.state.parsedNotices.length) {
                     return this.state.parsedNotices.map((notice) => this.formatParsedNoticeText(notice)).join('\n\n---\n\n');
                 }
-
->>>>>>> 0249478 (feat: improve funeral bulletin parsing and order)
                 if (!s.district && !s.deceased.name) return "상세 정보를 보시려면 기본 정보를 입력해주세요.";
 
                 const distName = Utils.clean(s.district).replace(/교구/g, '');
@@ -878,19 +855,11 @@
                 body += getLine("위로", "wiro", "wiro");
                 body += getLine("입관", "ipgwan", "ipgwan");
 
-<<<<<<< HEAD
-                const balinLabel = s.mode === 'church' ? "천국환송" : "발인";
-                body += getLine(balinLabel, "balin", "balin");
-
-                if (s.location) body += `빈소: ${s.location}\n`;
-                if (s.jangji) body += `장지: ${s.jangji}`;
-=======
                 const balinLabel = "발인";
                 body += getLine(balinLabel, "balin", "balin");
 
                 if (s.location) body += `빈소: ${s.location}\n`;
                 if (s.jangji) body += `장지: ${Utils.normalizeWeekdayLabel(s.jangji)}`;
->>>>>>> 0249478 (feat: improve funeral bulletin parsing and order)
 
                 return `${header}\n\n${body}`;
             },
@@ -1191,8 +1160,4 @@
     </script>
 </body>
 
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> 0249478 (feat: improve funeral bulletin parsing and order)
