@@ -572,10 +572,6 @@
         <input id="funeralHall" type="text" placeholder="예: OO병원장례식장3호 또는 무빈소">
       </div>
 
-      <div class="field">
-        <label for="notice">추가 안내 (선택)</label>
-        <input id="notice" type="text" placeholder="빈소 이동 시간, 조문 가능 시간 등">
-      </div>
       <button type="button" id="generateBtn" class="primary-btn">문자 생성하기</button>
     </section>
 
@@ -1024,10 +1020,9 @@
         const events = readSchedules(schedules);
         if (!events.length && !individual) throw new Error("안내할 일정의 날짜를 입력하거나 개별조문을 선택해 주세요.");
         const prefix = "[" + header + "]";
-        const notice = document.getElementById("notice").value.trim();
         const body = (departure, death) => [
           prefix + lead + death, ...relatives, ...(individual ? ["개별조문"] : []),
-          ...scheduleParts(events, false, departure), funeralHall, ...(notice ? [notice] : [])
+          ...scheduleParts(events, false, departure), funeralHall
         ].join("/");
         const message = body("교회출", "소천");
         const items = [{ title: "생성 결과", content: message }];
@@ -1036,7 +1031,7 @@
           if (countBytes(shorter) > 90) shorter = body("교출", "");
           if (shorter !== message) items.push({ title: "단축안", content: shorter, tone: "success" });
         }
-        lastGeneratedData = { heading: [[prefix, lead].filter(Boolean).join(" ") + " 소천", ...relatives].join(" / "), events, individual, funeralHall, notice };
+        lastGeneratedData = { heading: [[prefix, lead].filter(Boolean).join(" ") + " 소천", ...relatives].join(" / "), events, individual, funeralHall };
         els.step2Section.classList.add("hidden");
         renderResultBoxes(items);
       } catch (error) {
@@ -1064,7 +1059,6 @@
         if (detailVisit.checked) lines.push("개별조문");
         lines.push(...scheduleParts(readSchedules(detailSchedules), true));
         lines.push("빈소: " + lastGeneratedData.funeralHall);
-        if (lastGeneratedData.notice) lines.push(lastGeneratedData.notice);
         if (els.step2Cemetery.value.trim()) lines.push("장지: " + els.step2Cemetery.value.trim());
         els.step2Output.textContent = lines.join("\n");
         els.step2OutputWrap.classList.remove("hidden");
