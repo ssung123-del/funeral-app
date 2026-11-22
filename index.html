@@ -710,6 +710,22 @@
       return `${target.getMonth() + 1}월 ${target.getDate()}일(${weekdayMap[target.getDay()]})`;
     }
 
+    function normalizeTime(value, kind) {
+      const raw = value.trim().replace(/\s+/g, "");
+      if (!raw) return "";
+      const match = /^(오전|오후)?(\d{1,2})(?::(\d{1,2})|시(?:(\d{1,2})분?|반)?)?$/.exec(raw);
+      if (match) {
+        const [, period, hours, colonMinutes, koreanMinutes] = match;
+        let hour = Number(hours);
+        const minute = raw.endsWith("반") ? 30 : Number(colonMinutes || koreanMinutes || 0);
+        if (hour <= (period ? 12 : 23) && (!period || hour > 0) && minute < 60) {
+          if (period) hour = hour % 12 + (period === "오후" ? 12 : 0);
+          return String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+        }
+      }
+      throw new Error(kind + " 시간을 확인해 주세요. 예: 오후 2시 30분 또는 14:30");
+    }
+
     function parseTime(input) {
       if (!input) return null;
       const [hour, minute] = input.split(":").map(Number);
@@ -851,7 +867,10 @@
 
     function refreshDeparture(row, individual) {
       const checkbox = row.querySelector("[type=checkbox]");
-      checkbox.disabled = individual || !row.querySelector("[type=time]").value;
+      const time = row.querySelector(".event-time");
+      time.hidden = individual && row.querySelector(".kind").value === "발인";
+      time.disabled = time.hidden;
+      checkbox.disabled = individual || !time.value.trim();
       checkbox.checked = !checkbox.disabled && checkbox.dataset.preferred !== "false";
       checkbox.parentElement.title = individual ? "개별조문은 교회출발을 표시하지 않습니다." :
         checkbox.disabled ? "출발 시각을 입력하면 선택할 수 있습니다." : "";
@@ -869,17 +888,18 @@
         </div>
         <div class="row inline-2">
           <input type="date" aria-label="일정 날짜">
-          <input type="time" aria-label="일정 시간 (선택)">
+          <input type="text" class="event-time" aria-label="일정 시간 직접 입력 (선택)" placeholder="오후 2시 30분 또는 14:30">
         </div>
         <label class="check-line"><input type="checkbox"> 교회출발</label>
         <input class="place" aria-label="이 일정의 장소 또는 변경 안내" placeholder="이 일정의 장소 또는 변경 안내 (선택)">`;
       row.querySelector(".kind").value = data.kind || "위로";
       row.querySelector("[type=date]").value = data.date || "";
-      row.querySelector("[type=time]").value = data.time || "";
+      row.querySelector(".event-time").value = data.time || "";
       const depart = row.querySelector("[type=checkbox]");
       depart.dataset.preferred = String(data.preferDeparture ?? true);
       depart.addEventListener("change", () => { depart.dataset.preferred = String(depart.checked); });
-      row.querySelector("[type=time]").addEventListener("input", () => refreshDeparture(row, isIndividualVisit(container)));
+      row.querySelector(".event-time").addEventListener("input", () => refreshDeparture(row, isIndividualVisit(container)));
+      row.querySelector(".kind").addEventListener("change", () => refreshDeparture(row, isIndividualVisit(container)));
       refreshDeparture(row, isIndividualVisit(container));
       row.querySelector(".place").value = data.place || "";
       row.querySelector("button").onclick = () => row.remove();
@@ -891,7 +911,7 @@
       for (const row of container.children) {
         const kind = row.querySelector(".kind").value;
         const date = row.querySelector("[type=date]").value;
-        const time = row.querySelector("[type=time]").value;
+        const time = isIndividualVisit(container) && kind === "발인" ? "" : normalizeTime(row.querySelector(".event-time").value, kind);
         const place = row.querySelector(".place").value.trim();
         if (!date && !time && !place) continue;
         if (!date) throw new Error(kind + " 날짜를 입력해 주세요.");
@@ -1048,13 +1068,13 @@
       });
       for (const [visit, container] of [[els.individualVisit, schedules], [detailVisit, detailSchedules]]) {
         visit.addEventListener("change", () => {
-          for (const row of container.children) refreshDeparture(row, visit.checked);
           const row = container.firstElementChild;
           if (container.children.length === 1 && !row.querySelector("[type=date]").value &&
-              !row.querySelector("[type=time]").value && !row.querySelector(".place").value) {
+              !row.querySelector(".event-time").value && !row.querySelector(".place").value) {
             const kind = row.querySelector(".kind");
             if (kind.value === (visit.checked ? "위로" : "발인")) kind.value = visit.checked ? "발인" : "위로";
           }
+          for (const item of container.children) refreshDeparture(item, visit.checked);
         });
       }
       document.getElementById("addSchedule").onclick = () => addSchedule(schedules, { kind: nextKind(schedules) });
