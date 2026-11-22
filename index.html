@@ -528,10 +528,8 @@
 
       <div class="field">
         <label for="districtName"><i class="ri-map-pin-user-line"></i>교구</label>
-        <input id="districtName" type="text" placeholder="교구 (생략 가능)">
+        <input id="districtName" type="text" placeholder="예: 하남" required>
       </div>
-
-      <label class="check-line"><input id="omitHeader" type="checkbox"> 문자에서 장례 구분 제목 생략</label>
 
       <div class="person-wrap">
         <div class="field">
@@ -1000,21 +998,24 @@
         const church = currentMode === "church";
         const type = church ? "교회장" : "교구장";
         const district = normalizeDistrictName(els.districtName.value);
+        if (!district) {
+          els.districtName.focus();
+          throw new Error("장례문자 제목에 표시할 교구를 입력해 주세요.");
+        }
         const name = els.name1.value.trim().replace(/^故\s*/, "");
         const funeralHall = els.funeralHall.value.trim();
         if (!name || !funeralHall) throw new Error("이름과 빈소(또는 무빈소)를 입력해 주세요.");
         const relation = sanitizeRelation(els.relation.value);
         if (!church && !relation) throw new Error("교구장 문자에 표시할 고인과의 관계(예: 모친, 장남)를 입력해 주세요.");
         const family = collectOverlapData();
-        const groups = new Map([[type, new Set(district ? [district] : [])]]);
+        const groups = new Map([[type, new Set([district])]]);
         for (const member of family) {
-          if (!member.district) continue;
           if (!groups.has(member.type)) groups.set(member.type, new Set());
-          groups.get(member.type).add(member.district);
+          groups.get(member.type).add(member.district || district);
         }
         const header = [...groups].map(([label, districts]) => {
           const separator = groups.size === 1 ? "/" : ",";
-          return districts.size ? label + "-" + [...districts].join(separator) : label;
+          return label + "-" + [...districts].join(separator);
         }).join("/");
         const person = buildPersonName(name, els.title1.value, els.name2.value, els.title2.value);
         const lead = church ? "故" + person : person + relation;
@@ -1022,7 +1023,7 @@
         const individual = els.individualVisit.checked;
         const events = readSchedules(schedules);
         if (!events.length && !individual) throw new Error("안내할 일정의 날짜를 입력하거나 개별조문을 선택해 주세요.");
-        const prefix = document.getElementById("omitHeader").checked ? "" : "[" + header + "]";
+        const prefix = "[" + header + "]";
         const notice = document.getElementById("notice").value.trim();
         const body = (departure, death) => [
           prefix + lead + death, ...relatives, ...(individual ? ["개별조문"] : []),
@@ -1086,7 +1087,7 @@
           <button type="button" class="delete-btn" aria-label="겹장 삭제"><i class="ri-delete-bin-6-line"></i></button>
         </div>
         <div class="field">
-          <input class="j-district" type="text" placeholder="추가 교구 (제목에 표시할 때만)">
+          <input class="j-district" type="text" placeholder="교구 (비워 두면 대표 교구 적용)">
         </div>
         <div class="field">
           <div class="row name-row">
@@ -1154,6 +1155,15 @@
       els.addOverlapBtn.addEventListener("click", addOverlapCard);
     }
 
+    function vehicleDestination(value) {
+      // Keep the facility and branch name. Remove only a recognizable room or floor suffix.
+      const location = value.trim().replace(/\s*\((?:B\d+|무빈소|[^()]*빈소이동[^()]*)\)\s*$/i, "");
+      const room = /\s*(?:[,·-]\s*)?(?:\(\s*)?(?:(?:지하\s*|B)?\d+\s*층\s*)?(?:(?:VIP|특별|특실|특|일반|국화|목련|매화|백합|장궁|효)\s*)?(?:제\s*)?(?:[AB]?\d+|[AB])?\s*(?:호실|호|분향소|분향실|빈소|실)(?:\s*특실)?\s*\)?$/i;
+      const withoutRoom = location.replace(room, "").trimEnd();
+      // Bare room numbers and abbreviated names are common immediately after a facility name.
+      return withoutRoom.replace(/(장례식장|장례문화원|추모관|마루공원|병원|장례문화센터|장례원)\s*(?:(?:지하\s*|B)?\d+\s*층\s*)?(?:VIP|특실|특|백합|접객실)?\s*\d*$/i, "$1").trim();
+    }
+
     function bindVehicleForm() {
       const panel = document.getElementById("vehicle");
       const form = document.getElementById("vehicleForm");
@@ -1169,7 +1179,7 @@
         fields.date.value = event?.date || "";
         fields.departure.value = event ? formatTimeLong(parseTime(event.time)) : "";
         fields.arrival.value = "";
-        fields.destination.value = event?.place || els.funeralHall.value.trim();
+        fields.destination.value = vehicleDestination(event?.place || "") || vehicleDestination(els.funeralHall.value);
         result.classList.add("hidden");
       }
 
@@ -1210,6 +1220,8 @@
           for (const field of form.querySelectorAll("[required]")) {
             if (!field.value.trim()) throw new Error(field.labels[0].textContent + " 항목을 입력해 주세요.");
           }
+          const destination = vehicleDestination(value("destination"));
+          if (!destination) throw new Error("행선지에 장례식장 이름을 입력해 주세요.");
           const date = parseLocalDate(value("date"));
           const departure = formatTimeLong(parseTime(normalizeTime(value("departure"), "교회출발")));
           const arrival = formatTimeLong(parseTime(normalizeTime(value("arrival"), "도착")));
@@ -1219,7 +1231,7 @@
             `교회출발시간: ${departure}, 도착시간: ${arrival}`,
             `사용부서 및 탑승인원 : ${value("department")} ${value("passengers")}명`,
             `사용목적: ${value("purpose")}`,
-            `행선지 : ${value("destination")}`,
+            `행선지 : ${destination}`,
             `신청인 : ${value("applicant")} (${value("phone")})`
           ].join("\n");
           result.classList.remove("hidden");
