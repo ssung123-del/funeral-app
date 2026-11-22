@@ -525,8 +525,10 @@
 
       <div class="field">
         <label for="districtName"><i class="ri-map-pin-user-line"></i>교구</label>
-        <input id="districtName" type="text" placeholder="교구">
+        <input id="districtName" type="text" placeholder="교구 (생략 가능)">
       </div>
+
+      <label class="check-line"><input id="omitHeader" type="checkbox"> 문자에서 장례 구분 제목 생략</label>
 
       <div class="person-wrap">
         <div class="field">
@@ -553,68 +555,26 @@
         <span id="goTag" class="hint-tag hidden">* '故' 자동추가</span>
       </div>
 
-      <section id="districtSection">
-        <div class="switch-row">
-          <strong>개별조문 진행</strong>
-          <label class="switch" aria-label="개별조문 진행">
-            <input id="individualVisit" type="checkbox">
-            <span class="slider"></span>
-          </label>
+      <div class="schedule-box">
+        <div class="overlap-head">
+          <h3>추가 유가족 · 겹장</h3>
+          <button type="button" id="addOverlapBtn" class="outline-btn">유가족 추가</button>
         </div>
-
-        <div id="districtConsolationWrap" class="schedule-box">
-          <h3>위로예배</h3>
-          <div class="row inline-2">
-            <input id="districtConsolationDate" type="date">
-            <input id="districtConsolationTime" type="text" placeholder="시간 (예: 오후2시)">
-          </div>
-        </div>
-
-        <div id="districtFuneralWrap" class="schedule-box hidden">
-          <h3>발인 날짜 (시간 입력 없음)</h3>
-          <input id="districtFuneralDate" type="date">
-        </div>
-      </section>
-
-      <section id="churchSection" class="hidden">
-        <div class="schedule-box">
-          <div class="overlap-head">
-            <h3>겹장(합동 장례)</h3>
-            <button type="button" id="addOverlapBtn" class="outline-btn">겹장 추가하기</button>
-          </div>
-          <div id="overlapList" class="overlap-list"></div>
-        </div>
-
-        <div class="schedule-box">
-          <h3>위로예배</h3>
-          <div class="row inline-2">
-            <input id="churchConsolationDate" type="date">
-            <input id="churchConsolationTime" type="text" placeholder="시간 (예: 오후4시)">
-          </div>
-        </div>
-
-        <div class="schedule-box">
-          <h3>입관예배</h3>
-          <div class="row inline-2">
-            <input id="churchEncoffinDate" type="date">
-            <input id="churchEncoffinTime" type="text" placeholder="시간 (예: 오후2시)">
-          </div>
-        </div>
-
-        <div class="schedule-box">
-          <h3>천국환송</h3>
-          <div class="row inline-2">
-            <input id="churchSendoffDate" type="date">
-            <input id="churchSendoffTime" type="text" placeholder="시간 (예: 오전6시)">
-          </div>
-        </div>
-      </section>
+        <div id="overlapList" class="overlap-list"></div>
+      </div>
+      <label class="check-line"><input id="individualVisit" type="checkbox"> 개별조문</label>
+      <div id="schedules"></div>
+      <button type="button" id="addSchedule" class="outline-btn">일정 추가</button>
 
       <div class="field">
         <label for="funeralHall"><i class="ri-hospital-line"></i>장례식장</label>
-        <input id="funeralHall" type="text" placeholder="장례식장 (예: OO병원장례식장O호)">
+        <input id="funeralHall" type="text" placeholder="예: OO병원장례식장3호 또는 무빈소">
       </div>
 
+      <div class="field">
+        <label for="notice">추가 안내 (선택)</label>
+        <input id="notice" type="text" placeholder="빈소 이동 시간, 조문 가능 시간 등">
+      </div>
       <button type="button" id="generateBtn" class="primary-btn">문자 생성하기</button>
     </section>
 
@@ -632,44 +592,9 @@
         <input id="step2Header" type="text">
       </div>
 
-      <div class="step2-grid">
-        <div class="step2-box">
-          <h3>위로예배</h3>
-          <div class="row inline-2">
-            <input id="step2ConDate" type="date">
-            <input id="step2ConTime" type="text" placeholder="시간 (예: 오후 2시)">
-          </div>
-          <label class="check-line">
-            <input id="step2ConStart" type="checkbox">
-            교회출발
-          </label>
-        </div>
-
-        <div class="step2-box">
-          <h3>입관예배</h3>
-          <div class="row inline-2">
-            <input id="step2EnDate" type="date">
-            <input id="step2EnTime" type="text" placeholder="시간 (예: 오후 2시)">
-          </div>
-          <label class="check-line">
-            <input id="step2EnStart" type="checkbox">
-            교회출발
-          </label>
-        </div>
-
-        <div class="step2-box">
-          <h3 id="step2ThirdTitle">발인/천국환송</h3>
-          <div class="row inline-2">
-            <input id="step2ThirdDate" type="date">
-            <input id="step2ThirdTime" type="text" placeholder="시간 (예: 오전 6시)">
-          </div>
-          <label class="check-line">
-            <input id="step2ThirdStart" type="checkbox">
-            교회출발
-          </label>
-        </div>
-      </div>
-
+      <label class="check-line"><input id="detailVisit" type="checkbox"> 개별조문</label>
+      <div id="detailSchedules"></div>
+      <button type="button" id="addDetailSchedule" class="outline-btn">일정 추가</button>
       <div class="field" style="margin-top: 12px;">
         <label>빈소</label>
         <p id="step2HallPreview" class="auto-hall-text">장례식장에서 자동 반영됩니다.</p>
@@ -695,7 +620,7 @@
   </main>
 
   <script>
-    const weekdayMap = ["일", "월", "화", "수", "목", "금", "토"];
+    const weekdayMap = ["주일", "월", "화", "수", "목", "금", "토"];
     const titleOptionsMain = [
       { value: "", text: "직분" },
       { value: "성도", text: "성도" },
@@ -703,9 +628,10 @@
       { value: "안수집사", text: "안수" },
       { value: "권사", text: "권사" },
       { value: "장로", text: "장로" },
-      { value: "목사", text: "목사" }
+      { value: "목사", text: "목사" },
+      { value: "전도사", text: "전도사" }
     ];
-    const titleOptionsSpouse = titleOptionsMain.filter((opt) => opt.value !== "목사");
+    const titleOptionsSpouse = titleOptionsMain;
     let currentMode = "district";
     let overlapId = 0;
     let lastGeneratedData = null;
@@ -720,20 +646,7 @@
       relationField: document.getElementById("relationField"),
       relation: document.getElementById("relation"),
       goTag: document.getElementById("goTag"),
-      districtSection: document.getElementById("districtSection"),
-      churchSection: document.getElementById("churchSection"),
       individualVisit: document.getElementById("individualVisit"),
-      districtConsolationWrap: document.getElementById("districtConsolationWrap"),
-      districtFuneralWrap: document.getElementById("districtFuneralWrap"),
-      districtConsolationDate: document.getElementById("districtConsolationDate"),
-      districtConsolationTime: document.getElementById("districtConsolationTime"),
-      districtFuneralDate: document.getElementById("districtFuneralDate"),
-      churchConsolationDate: document.getElementById("churchConsolationDate"),
-      churchConsolationTime: document.getElementById("churchConsolationTime"),
-      churchEncoffinDate: document.getElementById("churchEncoffinDate"),
-      churchEncoffinTime: document.getElementById("churchEncoffinTime"),
-      churchSendoffDate: document.getElementById("churchSendoffDate"),
-      churchSendoffTime: document.getElementById("churchSendoffTime"),
       addOverlapBtn: document.getElementById("addOverlapBtn"),
       overlapList: document.getElementById("overlapList"),
       funeralHall: document.getElementById("funeralHall"),
@@ -743,16 +656,6 @@
       openStep2Btn: document.getElementById("openStep2Btn"),
       step2Section: document.getElementById("step2Section"),
       step2Header: document.getElementById("step2Header"),
-      step2ConDate: document.getElementById("step2ConDate"),
-      step2ConTime: document.getElementById("step2ConTime"),
-      step2ConStart: document.getElementById("step2ConStart"),
-      step2EnDate: document.getElementById("step2EnDate"),
-      step2EnTime: document.getElementById("step2EnTime"),
-      step2EnStart: document.getElementById("step2EnStart"),
-      step2ThirdTitle: document.getElementById("step2ThirdTitle"),
-      step2ThirdDate: document.getElementById("step2ThirdDate"),
-      step2ThirdTime: document.getElementById("step2ThirdTime"),
-      step2ThirdStart: document.getElementById("step2ThirdStart"),
       step2HallPreview: document.getElementById("step2HallPreview"),
       step2Cemetery: document.getElementById("step2Cemetery"),
       generateStep2Btn: document.getElementById("generateStep2Btn"),
@@ -765,23 +668,6 @@
       selectEl.innerHTML = options
         .map((item) => `<option value="${item.value}">${item.text}</option>`)
         .join("");
-    }
-
-    function getTodayLocal() {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, "0");
-      const d = String(now.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
-    }
-
-    function initDateDefaults() {
-      const today = getTodayLocal();
-      document.querySelectorAll('input[type="date"]').forEach((el) => {
-        if (!el.value) {
-          el.value = today;
-        }
-      });
     }
 
     function parseLocalDate(dateStr) {
@@ -808,11 +694,8 @@
       if (!target) {
         return "";
       }
-      const today = new Date();
-      const isToday =
-        target.getFullYear() === today.getFullYear() &&
-        target.getMonth() === today.getMonth() &&
-        target.getDate() === today.getDate();
+      const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Seoul" }).format(new Date());
+      const isToday = dateStr === today;
       if (isToday) {
         return `${target.getDate()}일(오늘)`;
       }
@@ -828,106 +711,29 @@
     }
 
     function parseTime(input) {
-      const raw = (input || "").trim();
-      if (!raw) {
-        return null;
-      }
-      const compact = raw.replace(/\s+/g, "");
-      const hasAm = /오전|am/i.test(compact);
-      const hasPm = /오후|pm/i.test(compact);
-      const nums = compact.match(/\d+/g);
-      if (!nums || nums.length === 0) {
-        return null;
-      }
-
-      let hour = parseInt(nums[0], 10);
-      let minute = nums[1] ? parseInt(nums[1], 10) : 0;
-      if (Number.isNaN(hour)) {
-        return null;
-      }
-      if (Number.isNaN(minute) || minute < 0) {
-        minute = 0;
-      }
-      if (minute > 59) {
-        minute = minute % 60;
-      }
-
-      let period = "";
-
-      if (!hasAm && !hasPm) {
-        if (hour > 12 && hour < 24) {
-          hour -= 12;
-          period = "오후";
-        } else if (hour === 12) {
-          period = "오후";
-        } else if (hour === 24) {
-          hour = 12;
-          period = "오전";
-        } else {
-          period = "오전";
-        }
-      } else {
-        period = hasPm ? "오후" : "오전";
-        if (hour > 12) {
-          hour -= 12;
-        }
-      }
-
-      if (hour === 0) {
-        hour = 12;
-      }
-
-      return {
-        period,
-        hour,
-        minute,
-        explicitMeridiem: hasAm || hasPm
-      };
+      if (!input) return null;
+      const [hour, minute] = input.split(":").map(Number);
+      return { period: hour >= 12 ? "오후" : "오전", hour: hour % 12 || 12, minute };
     }
 
-    function applyDefaultPeriod(timeObj, defaultPeriod) {
-      if (!timeObj || !defaultPeriod) {
-        return timeObj;
-      }
-      if (!timeObj.explicitMeridiem && timeObj.hour < 12 && timeObj.hour !== 12) {
-        return { ...timeObj, period: defaultPeriod };
-      }
-      return timeObj;
-    }
-
-    function formatTime(timeObj, forceMinutes) {
+    function formatTime(timeObj) {
       if (!timeObj) {
         return "";
       }
-      if (timeObj.minute === 0 && !forceMinutes) {
+      if (timeObj.minute === 0) {
         return `${timeObj.period}${timeObj.hour}시`;
       }
       return `${timeObj.period}${timeObj.hour}:${String(timeObj.minute).padStart(2, "0")}`;
     }
 
-    function formatTimeLong(timeObj, forceMinutes) {
+    function formatTimeLong(timeObj) {
       if (!timeObj) {
         return "";
       }
-      if (timeObj.minute === 0 && !forceMinutes) {
+      if (timeObj.minute === 0) {
         return `${timeObj.period} ${timeObj.hour}시`;
       }
       return `${timeObj.period} ${timeObj.hour}:${String(timeObj.minute).padStart(2, "0")}`;
-    }
-
-    function formatTimeGroup(rawTimes, useLongFormat, periodHints = []) {
-      const parsed = rawTimes.map((item, idx) => applyDefaultPeriod(parseTime(item), periodHints[idx]));
-      const forceMinutes = parsed.some((item) => item && item.minute !== 0);
-      return parsed.map((item) => {
-        if (!item) {
-          return "";
-        }
-        return useLongFormat ? formatTimeLong(item, forceMinutes) : formatTime(item, forceMinutes);
-      });
-    }
-
-    function combineDateTime(dateStr, timeText) {
-      return `${formatDate(dateStr)}${timeText}`;
     }
 
     function buildPersonName(name1, title1, name2, title2) {
@@ -1013,9 +819,7 @@
         const title2 = card.querySelector(".j-title2").value;
         const relation = sanitizeRelation(card.querySelector(".j-relation").value);
 
-        if (!district || !name1) {
-          return;
-        }
+        if (!name1) throw new Error("추가한 유가족의 이름을 입력하거나 해당 줄을 삭제해 주세요.");
 
         results.push({
           type,
@@ -1033,255 +837,143 @@
         btn.classList.toggle("active", btn.dataset.mode === mode);
       });
       const isDistrict = mode === "district";
-      els.districtSection.classList.toggle("hidden", !isDistrict);
-      els.churchSection.classList.toggle("hidden", isDistrict);
       els.relationField.classList.toggle("hidden", !isDistrict);
       els.goTag.classList.toggle("hidden", isDistrict);
     }
 
-    function toggleDistrictVisitView() {
-      const checked = els.individualVisit.checked;
-      els.districtConsolationWrap.classList.toggle("hidden", checked);
-      els.districtFuneralWrap.classList.toggle("hidden", !checked);
+    const schedules = document.getElementById("schedules");
+    const detailSchedules = document.getElementById("detailSchedules");
+    const detailVisit = document.getElementById("detailVisit");
+
+    function addSchedule(container, data = {}) {
+      const row = document.createElement("div");
+      row.className = "schedule-box";
+      row.innerHTML = `
+        <div class="overlap-head">
+          <select aria-label="일정 종류" class="kind">
+            <option>위로</option><option>입관</option><option>천국환송</option><option>발인</option>
+          </select>
+          <button type="button" class="outline-btn">삭제</button>
+        </div>
+        <div class="row inline-2">
+          <input type="date" aria-label="일정 날짜">
+          <input type="time" aria-label="일정 시간 (선택)">
+        </div>
+        <label class="check-line"><input type="checkbox"> 교회출발</label>
+        <input class="place" aria-label="이 일정의 장소 또는 변경 안내" placeholder="이 일정의 장소 또는 변경 안내 (선택)">`;
+      row.querySelector(".kind").value = data.kind || "위로";
+      row.querySelector("[type=date]").value = data.date || "";
+      row.querySelector("[type=time]").value = data.time || "";
+      row.querySelector("[type=checkbox]").checked = data.depart ?? true;
+      row.querySelector(".place").value = data.place || "";
+      row.querySelector("button").onclick = () => row.remove();
+      container.appendChild(row);
     }
 
-    function buildDistrictMessage(base) {
-      const relation = sanitizeRelation(base.relation);
-      const relationAndDeath = `${relation}소천`;
-
-      if (base.individualVisit) {
-        return `[교구장-${base.district}]${base.personName}${relationAndDeath}/개별조문/발인:${formatDate(base.funeralDate)}/${base.funeralHall}`;
+    function readSchedules(container) {
+      const events = [];
+      for (const row of container.children) {
+        const kind = row.querySelector(".kind").value;
+        const date = row.querySelector("[type=date]").value;
+        const time = row.querySelector("[type=time]").value;
+        const place = row.querySelector(".place").value.trim();
+        if (!date && !time && !place) continue;
+        if (!date) throw new Error(kind + " 날짜를 입력해 주세요.");
+        const depart = row.querySelector("[type=checkbox]").checked;
+        events.push({ kind, date, time, place, depart });
       }
-
-      return `[교구장-${base.district}]${base.personName}${relationAndDeath}/위로:${combineDateTime(base.consolationDate, base.consolationTimeText)}교회출/${base.funeralHall}`;
+      return events;
     }
 
-    function buildChurchMessage(base) {
-      const overlap = collectOverlapData();
-      const headerParts = [`교회장-${base.district}`];
-      const bodyParts = [`故${base.personName}소천`];
-
-      overlap.forEach((item) => {
-        headerParts.push(`${item.type}-${item.district}`);
-        bodyParts.push(`${item.personName}${item.relation}`);
-      });
-
-      if (base.consolationDate && base.consolationTimeText) {
-        bodyParts.push(`위로:${combineDateTime(base.consolationDate, base.consolationTimeText)}교회출`);
+    function scheduleParts(events, detailed, departure = "교회출") {
+      const parts = [];
+      for (const event of events) {
+        const time = parseTime(event.time);
+        const start = time && event.depart;
+        if (detailed) {
+          const when = [formatLongDate(event.date), formatTimeLong(time), start ? "교회출발" : ""];
+          parts.push(event.kind + ": " + when.filter(Boolean).join(" "));
+        } else {
+          parts.push(event.kind + ":" + formatDate(event.date) + formatTime(time) + (start ? departure : ""));
+        }
+        if (event.place) parts.push(event.place);
       }
-      if (base.encoffinDate && base.encoffinTimeText) {
-        bodyParts.push(`입관:${combineDateTime(base.encoffinDate, base.encoffinTimeText)}교회출`);
-      }
-      if (base.sendoffDate && base.sendoffTimeText) {
-        bodyParts.push(`천국환송:${combineDateTime(base.sendoffDate, base.sendoffTimeText)}교회출`);
-      }
-      bodyParts.push(base.funeralHall);
-
-      return `[${headerParts.join("/")}]${bodyParts.filter(Boolean).join("/")}`;
+      return parts;
     }
 
     function generateStep1() {
-      const district = normalizeDistrictName(els.districtName.value);
-      const name1 = els.name1.value.trim();
-      const title1 = els.title1.value;
-      const name2 = els.name2.value.trim();
-      const title2 = els.title2.value;
-      const personName = buildPersonName(name1, title1, name2, title2);
-      const funeralHall = els.funeralHall.value.trim();
-
-      if (!district || !name1 || !funeralHall) {
-        alert("필수 정보(교구, 이름, 장소)를 입력해주세요.");
-        return;
-      }
-
-      if (currentMode === "district") {
-        if (els.individualVisit.checked) {
-          if (!els.districtFuneralDate.value) {
-            alert("발인 날짜를 입력해주세요.");
-            return;
-          }
-
-          const data = {
-            mode: "district",
-            district,
-            personName,
-            relation: els.relation.value,
-            funeralHall,
-            individualVisit: true,
-            funeralDate: els.districtFuneralDate.value,
-            consolationDate: "",
-            consolationTimeRaw: "",
-            consolationTimeText: ""
-          };
-
-          const message = buildDistrictMessage(data);
-          const byteSize = countBytes(message);
-          if (byteSize > 90) {
-            const shortA = message.replaceAll("교회출", "교출");
-            const shortB = countBytes(shortA) > 90 ? shortA.replaceAll("소천", "") : shortA;
-            renderResultBoxes([
-              { title: "⚠️ 원본 (LMS)", content: message, tone: "warning" },
-              { title: "✨ 추천 단축안 (SMS 또는 LMS)", content: shortB, tone: "success" }
-            ]);
-          } else {
-            renderResultBoxes([{ title: "생성 결과", content: message }]);
-          }
-          lastGeneratedData = data;
-        } else {
-          const consolationTimeRaw = els.districtConsolationTime.value.trim();
-          if (!consolationTimeRaw || !parseTime(consolationTimeRaw)) {
-            alert("위로예배 시간을 입력해주세요.");
-            return;
-          }
-
-          const data = {
-            mode: "district",
-            district,
-            personName,
-            relation: els.relation.value,
-            funeralHall,
-            individualVisit: false,
-            consolationDate: els.districtConsolationDate.value,
-            consolationTimeRaw,
-            consolationTimeText: formatTime(applyDefaultPeriod(parseTime(consolationTimeRaw), "오후"), false),
-            funeralDate: ""
-          };
-
-          const message = buildDistrictMessage(data);
-          const byteSize = countBytes(message);
-          if (byteSize > 90) {
-            const shortA = message.replaceAll("교회출", "교출");
-            const shortB = countBytes(shortA) > 90 ? shortA.replaceAll("소천", "") : shortA;
-            renderResultBoxes([
-              { title: "⚠️ 원본 (LMS)", content: message, tone: "warning" },
-              { title: "✨ 추천 단축안 (SMS 또는 LMS)", content: shortB, tone: "success" }
-            ]);
-          } else {
-            renderResultBoxes([{ title: "생성 결과", content: message }]);
-          }
-          lastGeneratedData = data;
+      try {
+        const church = currentMode === "church";
+        const type = church ? "교회장" : "교구장";
+        const district = normalizeDistrictName(els.districtName.value);
+        const name = els.name1.value.trim().replace(/^故\s*/, "");
+        const funeralHall = els.funeralHall.value.trim();
+        if (!name || !funeralHall) throw new Error("이름과 빈소(또는 무빈소)를 입력해 주세요.");
+        const family = collectOverlapData();
+        const groups = new Map([[type, new Set(district ? [district] : [])]]);
+        for (const member of family) {
+          if (!member.district) continue;
+          if (!groups.has(member.type)) groups.set(member.type, new Set());
+          groups.get(member.type).add(member.district);
         }
-      } else {
-        const groupTimes = formatTimeGroup(
-          [
-            els.churchConsolationTime.value.trim(),
-            els.churchEncoffinTime.value.trim(),
-            els.churchSendoffTime.value.trim()
-          ],
-          false,
-          ["오후", "오후", "오전"]
-        );
-
-        const data = {
-          mode: "church",
-          district,
-          personName,
-          funeralHall,
-          consolationDate: els.churchConsolationDate.value,
-          consolationTimeRaw: els.churchConsolationTime.value.trim(),
-          consolationTimeText: groupTimes[0] || "",
-          encoffinDate: els.churchEncoffinDate.value,
-          encoffinTimeRaw: els.churchEncoffinTime.value.trim(),
-          encoffinTimeText: groupTimes[1] || "",
-          sendoffDate: els.churchSendoffDate.value,
-          sendoffTimeRaw: els.churchSendoffTime.value.trim(),
-          sendoffTimeText: groupTimes[2] || ""
-        };
-
-        const message = buildChurchMessage(data);
-        renderResultBoxes([{ title: "생성 결과", content: message }]);
-        lastGeneratedData = data;
+        const header = [...groups].map(([label, districts]) => {
+          const separator = groups.size === 1 ? "/" : ",";
+          return districts.size ? label + "-" + [...districts].join(separator) : label;
+        }).join("/");
+        const person = buildPersonName(name, els.title1.value, els.name2.value, els.title2.value);
+        const lead = church ? "故" + person : person + sanitizeRelation(els.relation.value);
+        const relatives = family.map(item => item.personName + item.relation);
+        const individual = els.individualVisit.checked;
+        const events = readSchedules(schedules);
+        if (!events.length && !individual) throw new Error("안내할 일정의 날짜를 입력하거나 개별조문을 선택해 주세요.");
+        const prefix = document.getElementById("omitHeader").checked ? "" : "[" + header + "]";
+        const notice = document.getElementById("notice").value.trim();
+        const body = (departure, death) => [
+          prefix + lead + death, ...relatives, ...(individual ? ["개별조문"] : []),
+          ...scheduleParts(events, false, departure), funeralHall, ...(notice ? [notice] : [])
+        ].join("/");
+        const message = body("교회출", "소천");
+        const items = [{ title: "생성 결과", content: message }];
+        if (!church && countBytes(message) > 90) {
+          let shorter = body("교출", "소천");
+          if (countBytes(shorter) > 90) shorter = body("교출", "");
+          if (shorter !== message) items.push({ title: "단축안", content: shorter, tone: "success" });
+        }
+        lastGeneratedData = { heading: [[prefix, lead].filter(Boolean).join(" ") + " 소천", ...relatives].join(" / "), events, individual, funeralHall, notice };
+        els.step2Section.classList.add("hidden");
+        renderResultBoxes(items);
+      } catch (error) {
+        alert(error.message);
       }
     }
 
     function openStep2Form() {
-      if (!lastGeneratedData) {
-        return;
-      }
-
       const data = lastGeneratedData;
-      els.step2Section.classList.remove("hidden");
-      els.step2HallPreview.textContent = (data.funeralHall || "").trim() || "장례식장 정보 없음";
+      if (!data) return;
+      els.step2Header.value = data.heading;
+      detailVisit.checked = data.individual;
+      detailSchedules.replaceChildren();
+      data.events.forEach(event => addSchedule(detailSchedules, event));
+      els.step2HallPreview.textContent = data.funeralHall;
       els.step2Cemetery.value = "";
-
-      if (data.mode === "district") {
-        const relation = sanitizeRelation(data.relation);
-        const relationText = relation ? ` ${relation}` : "";
-        els.step2Header.value = `[교구장-${data.district}] ${data.personName}${relationText} 소천`;
-        els.step2ThirdTitle.textContent = "발인";
-
-        els.step2ConDate.value = data.consolationDate || getTodayLocal();
-        els.step2ConTime.value = data.consolationTimeRaw || "";
-        els.step2EnDate.value = getTodayLocal();
-        els.step2EnTime.value = "";
-        els.step2ThirdDate.value = getTodayLocal();
-        els.step2ThirdTime.value = "";
-
-        els.step2ConStart.checked = true;
-        els.step2EnStart.checked = false;
-        els.step2ThirdStart.checked = false;
-      } else {
-        els.step2Header.value = `[교회장-${data.district}] 故${data.personName} 소천`;
-        els.step2ThirdTitle.textContent = "천국환송";
-
-        els.step2ConDate.value = data.consolationDate || getTodayLocal();
-        els.step2ConTime.value = data.consolationTimeRaw || "";
-        els.step2EnDate.value = data.encoffinDate || getTodayLocal();
-        els.step2EnTime.value = data.encoffinTimeRaw || "";
-        els.step2ThirdDate.value = data.sendoffDate || getTodayLocal();
-        els.step2ThirdTime.value = data.sendoffTimeRaw || "";
-
-        els.step2ConStart.checked = true;
-        els.step2EnStart.checked = true;
-        els.step2ThirdStart.checked = true;
-      }
-
+      els.step2OutputWrap.classList.add("hidden");
+      els.step2Section.classList.remove("hidden");
       els.step2Section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function generateStep2() {
-      const isChurch = lastGeneratedData && lastGeneratedData.mode === "church";
-      const thirdLabel = isChurch ? "천국환송" : "발인";
-      const rawTimes = [
-        els.step2ConTime.value.trim(),
-        els.step2EnTime.value.trim(),
-        els.step2ThirdTime.value.trim()
-      ];
-      const adjustedTimes = formatTimeGroup(rawTimes, true, ["오후", "오후", "오전"]);
-      const lines = [];
-      const header = els.step2Header.value.trim();
-
-      if (header) {
-        lines.push(header);
-        lines.push("");
+      try {
+        const lines = [els.step2Header.value.trim(), ""];
+        if (detailVisit.checked) lines.push("개별조문");
+        lines.push(...scheduleParts(readSchedules(detailSchedules), true));
+        lines.push("빈소: " + lastGeneratedData.funeralHall);
+        if (lastGeneratedData.notice) lines.push(lastGeneratedData.notice);
+        if (els.step2Cemetery.value.trim()) lines.push("장지: " + els.step2Cemetery.value.trim());
+        els.step2Output.textContent = lines.join("\n");
+        els.step2OutputWrap.classList.remove("hidden");
+      } catch (error) {
+        alert(error.message);
       }
-
-      if (els.step2ConDate.value && adjustedTimes[0]) {
-        const extra = els.step2ConStart.checked ? " 교회출발" : "";
-        lines.push(`위로: ${formatLongDate(els.step2ConDate.value)} ${adjustedTimes[0]}${extra}`);
-      }
-
-      if (els.step2EnDate.value && adjustedTimes[1]) {
-        const extra = els.step2EnStart.checked ? " 교회출발" : "";
-        lines.push(`입관: ${formatLongDate(els.step2EnDate.value)} ${adjustedTimes[1]}${extra}`);
-      }
-
-      if (els.step2ThirdDate.value && adjustedTimes[2]) {
-        const extra = els.step2ThirdStart.checked ? " 교회출발" : "";
-        lines.push(`${thirdLabel}: ${formatLongDate(els.step2ThirdDate.value)} ${adjustedTimes[2]}${extra}`);
-      }
-
-      const hall = ((lastGeneratedData && lastGeneratedData.funeralHall) || "").trim();
-      lines.push(`빈소: ${hall}`);
-
-      const cemetery = els.step2Cemetery.value.trim();
-      if (cemetery) {
-        lines.push(`장지: ${cemetery}`);
-      }
-
-      const output = lines.join("\n");
-      els.step2Output.textContent = output;
-      els.step2OutputWrap.classList.remove("hidden");
     }
 
     function addOverlapCard() {
@@ -1298,7 +990,7 @@
           <button type="button" class="delete-btn" aria-label="겹장 삭제"><i class="ri-delete-bin-6-line"></i></button>
         </div>
         <div class="field">
-          <input class="j-district" type="text" placeholder="교구">
+          <input class="j-district" type="text" placeholder="추가 교구 (제목에 표시할 때만)">
         </div>
         <div class="field">
           <div class="row name-row">
@@ -1322,11 +1014,39 @@
       els.overlapList.appendChild(card);
     }
 
+    function nextKind(container) {
+      const kinds = [...container.querySelectorAll(".kind")].map(field => field.value);
+      return ["위로", "입관", "천국환송", "발인"].find(kind => !kinds.includes(kind)) || "위로";
+    }
+
     function bindEvents() {
       els.segButtons.forEach((btn) => {
         btn.addEventListener("click", () => toggleMode(btn.dataset.mode));
       });
-      els.individualVisit.addEventListener("change", toggleDistrictVisitView);
+      els.individualVisit.addEventListener("change", () => {
+        if (schedules.children.length === 1) {
+          const row = schedules.firstElementChild;
+          if (!row.querySelector("[type=date]").value && !row.querySelector("[type=time]").value && !row.querySelector(".place").value) {
+            row.querySelector(".kind").value = els.individualVisit.checked ? "발인" : "위로";
+          }
+        }
+      });
+      document.getElementById("addSchedule").onclick = () => addSchedule(schedules, { kind: nextKind(schedules) });
+      document.getElementById("addDetailSchedule").onclick = () => addSchedule(detailSchedules, { kind: nextKind(detailSchedules) });
+      const invalidate = () => {
+        lastGeneratedData = null;
+        els.resultSection.classList.add("hidden");
+        els.step2Section.classList.add("hidden");
+      };
+      const form = els.generateBtn.closest("section");
+      form.addEventListener("input", invalidate);
+      form.addEventListener("click", event => {
+        if (event.target.closest("button") && !event.target.closest("#generateBtn")) invalidate();
+      }, true);
+      els.step2Section.addEventListener("input", () => els.step2OutputWrap.classList.add("hidden"));
+      detailSchedules.addEventListener("click", event => {
+        if (event.target.closest("button")) els.step2OutputWrap.classList.add("hidden");
+      }, true);
       els.generateBtn.addEventListener("click", generateStep1);
       els.openStep2Btn.addEventListener("click", openStep2Form);
       els.generateStep2Btn.addEventListener("click", generateStep2);
@@ -1337,9 +1057,8 @@
     function init() {
       buildSelectOptions(els.title1, titleOptionsMain);
       buildSelectOptions(els.title2, titleOptionsSpouse);
-      initDateDefaults();
+      addSchedule(schedules);
       toggleMode("district");
-      toggleDistrictVisitView();
       bindEvents();
     }
 
