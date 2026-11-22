@@ -528,7 +528,7 @@
 
       <div class="field">
         <label for="districtName"><i class="ri-map-pin-user-line"></i>교구</label>
-        <input id="districtName" type="text" placeholder="예: 하남" required>
+        <input id="districtName" type="text" required>
       </div>
 
       <div class="person-wrap">
@@ -628,15 +628,15 @@
         </div>
         <div class="field">
           <label for="vehicle-departure">교회출발시간</label>
-          <input id="vehicle-departure" name="departure" type="text" placeholder="오후 5:30 또는 17:30" required>
+          <input id="vehicle-departure" name="departure" type="text" placeholder="오후 5:30" required>
         </div>
         <div class="field">
           <label for="vehicle-arrival">도착시간</label>
-          <input id="vehicle-arrival" name="arrival" type="text" placeholder="오후 7:30 또는 19:30" required>
+          <input id="vehicle-arrival" name="arrival" type="text" placeholder="오후 7:30" required>
         </div>
         <div class="field">
           <label for="vehicle-department">사용부서</label>
-          <input id="vehicle-department" name="department" type="text" placeholder="예: 하남교구" required>
+          <input id="vehicle-department" name="department" type="text" required>
         </div>
         <div class="field">
           <label for="vehicle-passengers">탑승인원(명)</label>
@@ -761,17 +761,17 @@
     function normalizeTime(value, kind) {
       const raw = value.trim().replace(/\s+/g, "");
       if (!raw) return "";
-      const match = /^(오전|오후)?(\d{1,2})(?::(\d{1,2})|시(?:(\d{1,2})분?|반)?)?$/.exec(raw);
+      const match = /^(오전|오후)(\d{1,2})(?::(\d{1,2})|시(?:(\d{1,2})분?|반)?)?$/.exec(raw);
       if (match) {
         const [, period, hours, colonMinutes, koreanMinutes] = match;
         let hour = Number(hours);
         const minute = raw.endsWith("반") ? 30 : Number(colonMinutes || koreanMinutes || 0);
-        if (hour <= (period ? 12 : 23) && (!period || hour > 0) && minute < 60) {
-          if (period) hour = hour % 12 + (period === "오후" ? 12 : 0);
+        if (hour >= 1 && hour <= 12 && minute < 60) {
+          hour = hour % 12 + (period === "오후" ? 12 : 0);
           return String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
         }
       }
-      throw new Error(kind + " 시간을 확인해 주세요. 예: 오후 2시 30분 또는 14:30");
+      throw new Error(kind + " 시간은 오전 또는 오후와 함께 1~12시로 입력해 주세요. 예: 오후 2시 30분");
     }
 
     function parseTime(input) {
@@ -936,13 +936,13 @@
         </div>
         <div class="row inline-2">
           <input type="date" aria-label="일정 날짜">
-          <input type="text" class="event-time" aria-label="일정 시간 직접 입력 (선택)" placeholder="오후 2시 30분 또는 14:30">
+          <input type="text" class="event-time" aria-label="일정 시간 직접 입력 (선택)" placeholder="오후 2시 30분">
         </div>
         <label class="check-line"><input type="checkbox"> 교회출발</label>
         <input class="place" aria-label="이 일정의 장소 또는 변경 안내" placeholder="이 일정의 장소 또는 변경 안내 (선택)">`;
       row.querySelector(".kind").value = data.kind || "위로";
       row.querySelector("[type=date]").value = data.date || "";
-      row.querySelector(".event-time").value = data.time || "";
+      row.querySelector(".event-time").value = formatTimeLong(parseTime(data.time));
       const depart = row.querySelector("[type=checkbox]");
       depart.dataset.preferred = String(data.preferDeparture ?? true);
       depart.addEventListener("change", () => { depart.dataset.preferred = String(depart.checked); });
