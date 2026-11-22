@@ -845,6 +845,18 @@
     const detailSchedules = document.getElementById("detailSchedules");
     const detailVisit = document.getElementById("detailVisit");
 
+    function isIndividualVisit(container) {
+      return (container === schedules ? els.individualVisit : detailVisit).checked;
+    }
+
+    function refreshDeparture(row, individual) {
+      const checkbox = row.querySelector("[type=checkbox]");
+      checkbox.disabled = individual || !row.querySelector("[type=time]").value;
+      checkbox.checked = !checkbox.disabled && checkbox.dataset.preferred !== "false";
+      checkbox.parentElement.title = individual ? "개별조문은 교회출발을 표시하지 않습니다." :
+        checkbox.disabled ? "출발 시각을 입력하면 선택할 수 있습니다." : "";
+    }
+
     function addSchedule(container, data = {}) {
       const row = document.createElement("div");
       row.className = "schedule-box";
@@ -864,7 +876,11 @@
       row.querySelector(".kind").value = data.kind || "위로";
       row.querySelector("[type=date]").value = data.date || "";
       row.querySelector("[type=time]").value = data.time || "";
-      row.querySelector("[type=checkbox]").checked = data.depart ?? true;
+      const depart = row.querySelector("[type=checkbox]");
+      depart.dataset.preferred = String(data.preferDeparture ?? true);
+      depart.addEventListener("change", () => { depart.dataset.preferred = String(depart.checked); });
+      row.querySelector("[type=time]").addEventListener("input", () => refreshDeparture(row, isIndividualVisit(container)));
+      refreshDeparture(row, isIndividualVisit(container));
       row.querySelector(".place").value = data.place || "";
       row.querySelector("button").onclick = () => row.remove();
       container.appendChild(row);
@@ -879,10 +895,14 @@
         const place = row.querySelector(".place").value.trim();
         if (!date && !time && !place) continue;
         if (!date) throw new Error(kind + " 날짜를 입력해 주세요.");
-        const depart = row.querySelector("[type=checkbox]").checked;
-        events.push({ kind, date, time, place, depart });
+        const preferDeparture = row.querySelector("[type=checkbox]").dataset.preferred !== "false";
+        const depart = !isIndividualVisit(container) && Boolean(time) && preferDeparture;
+        events.push({ kind, date, time, place, depart, preferDeparture });
       }
-      return events;
+      const order = ["위로", "입관", "천국환송", "발인"];
+      return events.sort((a, b) => a.date.localeCompare(b.date) ||
+        (a.time || "24:00").localeCompare(b.time || "24:00") ||
+        order.indexOf(a.kind) - order.indexOf(b.kind));
     }
 
     function scheduleParts(events, detailed, departure = "교회출") {
@@ -909,6 +929,8 @@
         const name = els.name1.value.trim().replace(/^故\s*/, "");
         const funeralHall = els.funeralHall.value.trim();
         if (!name || !funeralHall) throw new Error("이름과 빈소(또는 무빈소)를 입력해 주세요.");
+        const relation = sanitizeRelation(els.relation.value);
+        if (!church && !relation) throw new Error("교구장 문자에 표시할 고인과의 관계(예: 모친, 장남)를 입력해 주세요.");
         const family = collectOverlapData();
         const groups = new Map([[type, new Set(district ? [district] : [])]]);
         for (const member of family) {
@@ -921,7 +943,7 @@
           return districts.size ? label + "-" + [...districts].join(separator) : label;
         }).join("/");
         const person = buildPersonName(name, els.title1.value, els.name2.value, els.title2.value);
-        const lead = church ? "故" + person : person + sanitizeRelation(els.relation.value);
+        const lead = church ? "故" + person : person + relation;
         const relatives = family.map(item => item.personName + item.relation);
         const individual = els.individualVisit.checked;
         const events = readSchedules(schedules);
@@ -1016,21 +1038,25 @@
 
     function nextKind(container) {
       const kinds = [...container.querySelectorAll(".kind")].map(field => field.value);
-      return ["위로", "입관", "천국환송", "발인"].find(kind => !kinds.includes(kind)) || "위로";
+      const choices = isIndividualVisit(container) ? ["발인", "입관"] : ["위로", "입관", "천국환송", "발인"];
+      return choices.find(kind => !kinds.includes(kind)) || choices[0];
     }
 
     function bindEvents() {
       els.segButtons.forEach((btn) => {
         btn.addEventListener("click", () => toggleMode(btn.dataset.mode));
       });
-      els.individualVisit.addEventListener("change", () => {
-        if (schedules.children.length === 1) {
-          const row = schedules.firstElementChild;
-          if (!row.querySelector("[type=date]").value && !row.querySelector("[type=time]").value && !row.querySelector(".place").value) {
-            row.querySelector(".kind").value = els.individualVisit.checked ? "발인" : "위로";
+      for (const [visit, container] of [[els.individualVisit, schedules], [detailVisit, detailSchedules]]) {
+        visit.addEventListener("change", () => {
+          for (const row of container.children) refreshDeparture(row, visit.checked);
+          const row = container.firstElementChild;
+          if (container.children.length === 1 && !row.querySelector("[type=date]").value &&
+              !row.querySelector("[type=time]").value && !row.querySelector(".place").value) {
+            const kind = row.querySelector(".kind");
+            if (kind.value === (visit.checked ? "위로" : "발인")) kind.value = visit.checked ? "발인" : "위로";
           }
-        }
-      });
+        });
+      }
       document.getElementById("addSchedule").onclick = () => addSchedule(schedules, { kind: nextKind(schedules) });
       document.getElementById("addDetailSchedule").onclick = () => addSchedule(detailSchedules, { kind: nextKind(detailSchedules) });
       const invalidate = () => {
