@@ -903,6 +903,7 @@
       const isDistrict = mode === "district";
       els.relationField.classList.toggle("hidden", !isDistrict);
       els.goTag.classList.toggle("hidden", isDistrict);
+      for (const row of schedules.children) refreshKind(row, schedules);
     }
 
     const schedules = document.getElementById("schedules");
@@ -911,6 +912,13 @@
 
     function isIndividualVisit(container) {
       return (container === schedules ? els.individualVisit : detailVisit).checked;
+    }
+
+    function refreshKind(row, container) {
+      const kind = row.querySelector(".kind");
+      const locked = currentMode === "district" && !isIndividualVisit(container) && kind.value === "위로";
+      kind.disabled = locked;
+      row.querySelector(".change-kind").hidden = !locked;
     }
 
     function refreshDeparture(row, individual) {
@@ -932,7 +940,8 @@
           <select aria-label="일정 종류" class="kind">
             <option>위로</option><option>입관</option><option>천국환송</option><option>발인</option>
           </select>
-          <button type="button" class="outline-btn">삭제</button>
+          <button type="button" class="outline-btn change-kind" hidden>종류 변경</button>
+          <button type="button" class="outline-btn remove-event">삭제</button>
         </div>
         <div class="row inline-2">
           <input type="date" aria-label="일정 날짜">
@@ -950,7 +959,16 @@
       row.querySelector(".kind").addEventListener("change", () => refreshDeparture(row, isIndividualVisit(container)));
       refreshDeparture(row, isIndividualVisit(container));
       row.querySelector(".place").value = data.place || "";
-      row.querySelector("button").onclick = () => row.remove();
+      const kind = row.querySelector(".kind");
+      const changeKind = row.querySelector(".change-kind");
+      changeKind.onclick = () => {
+        kind.disabled = false;
+        changeKind.hidden = true;
+        kind.focus();
+      };
+      kind.addEventListener("change", () => refreshKind(row, container));
+      refreshKind(row, container);
+      row.querySelector(".remove-event").onclick = () => row.remove();
       container.appendChild(row);
     }
 
@@ -1106,6 +1124,7 @@
     }
 
     function nextKind(container) {
+      if (currentMode === "district" && !isIndividualVisit(container)) return "위로";
       const kinds = [...container.querySelectorAll(".kind")].map(field => field.value);
       const choices = isIndividualVisit(container) ? ["발인", "입관"] : ["위로", "입관", "천국환송", "발인"];
       return choices.find(kind => !kinds.includes(kind)) || choices[0];
@@ -1123,7 +1142,10 @@
             const kind = row.querySelector(".kind");
             if (kind.value === (visit.checked ? "위로" : "발인")) kind.value = visit.checked ? "발인" : "위로";
           }
-          for (const item of container.children) refreshDeparture(item, visit.checked);
+          for (const item of container.children) {
+            refreshKind(item, container);
+            refreshDeparture(item, visit.checked);
+          }
         });
       }
       document.getElementById("addSchedule").onclick = () => addSchedule(schedules, { kind: nextKind(schedules) });
