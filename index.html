@@ -4,11 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>장례 안내 문자 생성기</title>
+  <script>
+    const themeKey = "funeral-app-theme";
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+    let themeChoice = "system";
+    try {
+      const saved = localStorage.getItem(themeKey);
+      if (saved === "light" || saved === "dark") themeChoice = saved;
+    } catch { /* The setting still works for this visit when storage is unavailable. */ }
+
+    function applyTheme() {
+      document.documentElement.dataset.theme = themeChoice === "system"
+        ? (systemDark.matches ? "dark" : "light") : themeChoice;
+    }
+    applyTheme();
+    systemDark.addEventListener("change", applyTheme);
+  </script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
   <style>
     :root {
       color-scheme: light;
+      --canvas: #f3f0e6;
+      --grid: #ada79526;
+      --control: #b5b0a4;
+      --placeholder: #67645e;
+      --focus: #197278;
+      --outline: #b8b4a9;
+      --chip: #e4e1d8;
+      --shadow: #302c2010;
+      --on-pine: white;
       --ink: #161614;
       --muted: #5e5c56;
       --line: #d0cabe;
@@ -17,12 +42,33 @@
       --pine: #07545a;
       font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
       color: var(--ink);
-      background: #f3f0e6;
+      background: var(--canvas);
     }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --canvas: #151817;
+      --grid: #d4e1da0e;
+      --paper: #202524;
+      --soft: #2b3230;
+      --ink: #f1f2e9;
+      --muted: #c1c7bd;
+      --line: #505955;
+      --control: #82918a;
+      --outline: #819189;
+      --placeholder: #acb6af;
+      --pine: #8edbd5;
+      --on-pine: #102e2c;
+      --focus: #b4fff5;
+      --chip: #38443e;
+      --shadow: #00000030;
+    }
+    .theme-picker { display:flex; align-items:center; gap:10px; margin-top:16px; }
+    .theme-picker label { color:var(--muted); margin:0; font-weight:500; }
+    .theme-picker select { width:auto; height:38px; font-size:.9rem; }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background-image: linear-gradient(90deg, #ada79526 1px, transparent 1px);
+      background-image: linear-gradient(90deg, var(--grid) 1px, transparent 1px);
       background-size: max(64px, calc(100vw / 12)) 100%;
     }
     .app-shell { width: min(calc(100% - 80px), 1184px); margin: 56px auto 72px;
@@ -40,7 +86,7 @@
     h2, summary { font-size: 1.22rem; font-weight: 700; }
     h3 { font-size: 1rem; }
     .subtitle { word-break: keep-all; margin: 7px 0 0; color: var(--muted); line-height: 1.55; }
-    .card { background: var(--paper); padding: 28px 32px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 5px; box-shadow: 0 2px 4px #302c2010; scroll-margin-top: 16px; }
+    .card { background: var(--paper); padding: 28px 32px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 5px; box-shadow: 0 2px 4px var(--shadow); scroll-margin-top: 16px; }
     .card > h2 { margin-bottom: 20px; }
     .block-title { margin: 26px 0 16px; padding-top: 22px; border-top: 1px solid var(--line); }
     .top-fields, .person-wrap, .inline-2, #vehicleForm { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 18px; }
@@ -53,13 +99,13 @@
     .seg-btn { flex: 1; padding: 8px 4px; color: var(--muted); background: transparent; }
     .seg-btn { border-radius: 0; }
     .seg-btn.active { color: var(--pine); border-bottom: 3px solid var(--pine); }
-    .primary-btn { background: var(--pine); color: white; }
+    .primary-btn { background: var(--pine); color: var(--on-pine); }
     .field { margin-bottom: 16px; }
     label, .field-label { display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 600; color: var(--ink); }
     label i { display:none; }
-    input, select, textarea { width: 100%; min-width: 0; height: 44px; padding: 9px 11px; background: var(--paper); border: 1px solid #b5b0a4; border-radius: 4px; color: var(--ink); }
-    input::placeholder { color: #67645e; font-weight: 400; }
-    :focus-visible { outline: 3px solid #197278; outline-offset: 2px; }
+    input, select, textarea { width: 100%; min-width: 0; height: 44px; padding: 9px 11px; background: var(--paper); border: 1px solid var(--control); border-radius: 4px; color: var(--ink); }
+    input::placeholder { color: var(--placeholder); font-weight: 400; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
     select:disabled { opacity: 1; color: var(--pine); background: var(--soft); }
     .name-row { display:grid; grid-template-columns: minmax(0,1fr) 6.2em; gap: 6px; }
     .hint-tag { align-self: end; color: var(--muted); font-size: .85rem; }
@@ -67,7 +113,7 @@
     .overlap-head, .overlap-top, .result-meta, .result-headline, .schedule-title { display:flex; align-items:center; gap: 8px; }
     .overlap-head h3, .schedule-title h2 { margin-right: auto; }
     .overlap-head select, .overlap-top select { flex:1; width: auto; min-width: 0; }
-    .outline-btn, .copy-btn, .delete-btn, .ghost-btn { color: var(--pine); border-color: #b8b4a9; background: var(--paper); padding: 9px 12px; }
+    .outline-btn, .copy-btn, .delete-btn, .ghost-btn { color: var(--pine); border-color: var(--outline); background: var(--paper); padding: 9px 12px; }
     .outline-btn, .delete-btn, .copy-btn { flex: none; font-size: .86rem; }
     .remove-event, .delete-btn { color: var(--muted); }
     .schedule-box, .overlap-card, .result-box { margin: 10px 0; padding: 16px; border-radius: 5px; border: 1px solid var(--line); background: var(--soft); }
@@ -86,7 +132,7 @@
     .result-headline { flex-wrap:wrap; }
     .result-title { font-weight: 700; }
     .byte-chip, .badge-chip { color: var(--muted); font-size: .8rem; }
-    .badge-chip { padding: 3px 6px; border-radius: 4px; background: #e4e1d8; }
+    .badge-chip { padding: 3px 6px; border-radius: 4px; background: var(--chip); }
     .result-box.success { border-left: 3px solid var(--pine); }
     .result-text, .auto-hall-text { margin:0; font: inherit; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; }
     details.card summary { color: var(--pine); }
@@ -127,6 +173,14 @@
         <a href="#step2Section">교우소식</a>
         <a href="#vehicle">차량신청</a>
       </nav>
+      <div class="theme-picker">
+        <label for="themeChoice">화면 모드</label>
+        <select id="themeChoice">
+          <option value="system">기기 설정</option>
+          <option value="light">밝게</option>
+          <option value="dark">어둡게</option>
+        </select>
+      </div>
 
     </header>
     <div class="workspace">
@@ -911,6 +965,13 @@
       toggleMode("district");
       bindEvents();
       bindVehicleForm();
+      const themeSelect = document.getElementById("themeChoice");
+      themeSelect.value = themeChoice;
+      themeSelect.addEventListener("change", () => {
+        themeChoice = themeSelect.value;
+        applyTheme();
+        try { localStorage.setItem(themeKey, themeChoice); } catch { /* Session-only choice. */ }
+      });
       function openLinkedPanel(hash) {
         if (hash === "#step2Section" || hash === "#vehicle") {
           document.getElementById(hash.slice(1)).open = true;
