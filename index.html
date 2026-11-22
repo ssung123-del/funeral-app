@@ -486,6 +486,9 @@
       line-height: 1.4;
     }
 
+    #vehicle summary { cursor: pointer; font-size: 1.2rem; font-weight: 700; }
+    #vehicle form { margin-top: 16px; }
+
     .hidden {
       display: none !important;
     }
@@ -582,6 +585,7 @@
       <h2>Step 1 결과</h2>
       <div id="resultBoxes" class="result-list" aria-live="polite"></div>
       <button type="button" id="openStep2Btn" class="ghost-btn">교우소식(상세) 작성하기</button>
+      <button type="button" id="openVehicle" class="ghost-btn">차량신청 작성하기</button>
     </section>
 
     <section id="step2Section" class="card hidden">
@@ -617,6 +621,56 @@
         <pre id="step2Output" class="result-text"></pre>
       </div>
     </section>
+    <details class="card" id="vehicle">
+      <summary>차량신청 작성하기</summary>
+      <form id="vehicleForm">
+        <div class="field hidden" id="tripField">
+          <label for="trip">교회출발 일정</label>
+          <select id="trip"><option value="">직접 입력</option></select>
+        </div>
+        <div class="field">
+          <label for="vehicle-date">날짜</label>
+          <input id="vehicle-date" name="date" type="date"  required>
+        </div>
+        <div class="field">
+          <label for="vehicle-departure">교회출발시간</label>
+          <input id="vehicle-departure" name="departure" type="text" placeholder="오후 5:30 또는 17:30" required>
+        </div>
+        <div class="field">
+          <label for="vehicle-arrival">도착시간</label>
+          <input id="vehicle-arrival" name="arrival" type="text" placeholder="오후 7:30 또는 19:30" required>
+        </div>
+        <div class="field">
+          <label for="vehicle-department">사용부서</label>
+          <input id="vehicle-department" name="department" type="text" placeholder="예: 하남교구" required>
+        </div>
+        <div class="field">
+          <label for="vehicle-passengers">탑승인원(명)</label>
+          <input id="vehicle-passengers" name="passengers" type="number" min="1" step="1" required>
+        </div>
+        <div class="field">
+          <label for="vehicle-purpose">사용목적</label>
+          <input id="vehicle-purpose" name="purpose" type="text" value="장례예배" required>
+        </div>
+        <div class="field">
+          <label for="vehicle-destination">행선지</label>
+          <input id="vehicle-destination" name="destination" type="text" placeholder="장례식장 이름" required>
+        </div>
+        <div class="field">
+          <label for="vehicle-applicant">신청인</label>
+          <input id="vehicle-applicant" name="applicant" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="vehicle-phone">연락처</label>
+          <input id="vehicle-phone" name="phone" type="tel" autocomplete="tel" required>
+        </div>
+        <button type="submit" class="primary-btn">차량신청 문구 생성하기</button>
+      </form>
+      <div id="vehicleResult" class="result-box hidden" aria-live="polite">
+        <button type="button" class="copy-btn" id="copyVehicle">복사하기</button>
+        <pre class="result-text" id="vehicleText"></pre>
+      </div>
+    </details>
   </main>
 
   <script>
@@ -1100,12 +1154,89 @@
       els.addOverlapBtn.addEventListener("click", addOverlapCard);
     }
 
+    function bindVehicleForm() {
+      const panel = document.getElementById("vehicle");
+      const form = document.getElementById("vehicleForm");
+      const fields = form.elements;
+      const trip = document.getElementById("trip");
+      const result = document.getElementById("vehicleResult");
+      const output = document.getElementById("vehicleText");
+      let trips = [];
+      let previousSource = null;
+
+      function applyTrip() {
+        const event = trip.value === "" ? null : trips[Number(trip.value)];
+        fields.date.value = event?.date || "";
+        fields.departure.value = event ? formatTimeLong(parseTime(event.time)) : "";
+        fields.arrival.value = "";
+        fields.destination.value = event?.place || els.funeralHall.value.trim();
+        result.classList.add("hidden");
+      }
+
+      function loadTrips() {
+        // A standalone request can be prepared while funeral schedules are incomplete.
+        try {
+          trips = readSchedules(schedules).filter(event => event.depart);
+        } catch {
+          trips = [];
+        }
+        const district = normalizeDistrictName(els.districtName.value);
+        const source = JSON.stringify([trips, district, els.funeralHall.value.trim()]);
+        if (source === previousSource) return;
+        previousSource = source;
+        trip.replaceChildren(new Option("직접 입력", ""));
+        trips.forEach((event, index) => {
+          trip.add(new Option(event.kind + " · " + formatLongDate(event.date) + " " + formatTimeLong(parseTime(event.time)), index));
+        });
+        if (trips.length) trip.value = "0";
+        document.getElementById("tripField").classList.toggle("hidden", !trips.length);
+        fields.department.value = district && !/(부|팀|교구)$/.test(district) ? district + "교구" : district;
+        applyTrip();
+      }
+
+      panel.addEventListener("toggle", () => { if (panel.open) loadTrips(); });
+      document.getElementById("openVehicle").onclick = () => {
+        loadTrips();
+        panel.open = true;
+        panel.scrollIntoView({ behavior: "smooth" });
+      };
+      trip.onchange = applyTrip;
+      form.addEventListener("input", () => result.classList.add("hidden"));
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        result.classList.add("hidden");
+        try {
+          const value = key => fields.namedItem(key).value.trim();
+          for (const field of form.querySelectorAll("[required]")) {
+            if (!field.value.trim()) throw new Error(field.labels[0].textContent + " 항목을 입력해 주세요.");
+          }
+          const date = parseLocalDate(value("date"));
+          const departure = formatTimeLong(parseTime(normalizeTime(value("departure"), "교회출발")));
+          const arrival = formatTimeLong(parseTime(normalizeTime(value("arrival"), "도착")));
+          output.textContent = [
+            "팀장님 차량 신청 부탁드립니다.", "",
+            `날짜 : ${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`,
+            `교회출발시간: ${departure}, 도착시간: ${arrival}`,
+            `사용부서 및 탑승인원 : ${value("department")} ${value("passengers")}명`,
+            `사용목적: ${value("purpose")}`,
+            `행선지 : ${value("destination")}`,
+            `신청인 : ${value("applicant")} (${value("phone")})`
+          ].join("\n");
+          result.classList.remove("hidden");
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+      document.getElementById("copyVehicle").onclick = () => copyText(output.textContent);
+    }
+
     function init() {
       buildSelectOptions(els.title1, titleOptionsMain);
       buildSelectOptions(els.title2, titleOptionsSpouse);
       addSchedule(schedules);
       toggleMode("district");
       bindEvents();
+      bindVehicleForm();
     }
 
     init();
