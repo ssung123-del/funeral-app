@@ -118,7 +118,6 @@
     .remove-event, .delete-btn { color: var(--muted); }
     .schedule-box, .overlap-card, .result-box { margin: 10px 0; padding: 16px; border-radius: 5px; border: 1px solid var(--line); background: var(--soft); }
     .schedule-box .inline-2 { margin: 12px 0 3px; }
-    .schedule-box .place { margin-top: 4px; }
     .overlap-top { margin: 12px 0; }
     .overlap-card .field:last-child { margin-bottom: 0; }
     .check-line { display:flex; align-items:center; gap:8px; min-height: 36px; margin: 0 0 6px; cursor:pointer; }
@@ -626,14 +625,12 @@
         <div class="row inline-2">
           <label>날짜<input type="date" aria-label="일정 날짜"></label>
           <label>시간<input type="text" class="event-time" aria-label="일정 시간 직접 입력 (선택)" placeholder="오후 2시 30분"></label>
-        </div>
-        <input class="place" aria-label="이 일정의 장소 또는 변경 안내" placeholder="이 일정의 장소 또는 변경 안내 (선택)">`;
+        </div>`;
       row.querySelector(".kind").value = data.kind || "위로";
       row.querySelector("[type=date]").value = data.date || "";
       row.querySelector(".event-time").value = formatTimeLong(parseTime(data.time));
       row.querySelector(".kind").addEventListener("change", () => refreshScheduleTime(row, isIndividualVisit(container)));
       refreshScheduleTime(row, isIndividualVisit(container));
-      row.querySelector(".place").value = data.place || "";
       const kind = row.querySelector(".kind");
       const changeKind = row.querySelector(".change-kind");
       changeKind.onclick = () => {
@@ -653,11 +650,10 @@
         const kind = row.querySelector(".kind").value;
         const date = row.querySelector("[type=date]").value;
         const time = isIndividualVisit(container) && kind === "발인" ? "" : normalizeTime(row.querySelector(".event-time").value, kind);
-        const place = row.querySelector(".place").value.trim();
-        if (!date && !time && !place) continue;
+        if (!date && !time) continue;
         if (!date) throw new Error(kind + " 날짜를 입력해 주세요.");
         const depart = !isIndividualVisit(container) && Boolean(time);
-        events.push({ kind, date, time, place, depart });
+        events.push({ kind, date, time, depart });
       }
       const order = ["위로", "입관", "천국환송", "발인"];
       return events.sort((a, b) => a.date.localeCompare(b.date) ||
@@ -676,7 +672,6 @@
         } else {
           parts.push(event.kind + ":" + formatDate(event.date) + formatTime(time) + (start ? departure : ""));
         }
-        if (event.place) parts.push(event.place);
       }
       return parts;
     }
@@ -826,7 +821,7 @@
         visit.addEventListener("change", () => {
           const row = container.firstElementChild;
           if (container.children.length === 1 && !row.querySelector("[type=date]").value &&
-              !row.querySelector(".event-time").value && !row.querySelector(".place").value) {
+              !row.querySelector(".event-time").value) {
             const kind = row.querySelector(".kind");
             if (kind.value === (visit.checked ? "위로" : "발인")) kind.value = visit.checked ? "발인" : "위로";
           }
@@ -892,7 +887,7 @@
         fields.date.value = event?.date || "";
         fields.departure.value = event ? formatTimeLong(parseTime(event.time)) : "";
         fields.arrival.value = "";
-        fields.destination.value = vehicleDestination(event?.place || "") || vehicleDestination(els.funeralHall.value);
+        fields.destination.value = vehicleDestination(els.funeralHall.value);
         result.classList.add("hidden");
       }
 
