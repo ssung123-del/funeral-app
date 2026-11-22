@@ -2,535 +2,123 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>장례 안내 문자 생성기</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
   <style>
     :root {
-      --primary: #2c3e50;
-      --accent: #3498db;
-      --bg: #f2f4f6;
-      --card: #ffffff;
-      --text: #191f28;
-      --text-sub: #8b95a1;
-      --border: #e5e8eb;
-      --red: #e74c3c;
-      --green: #27ae60;
-      --orange: #f39c12;
+      color-scheme: light;
+      --ink: #222d2a;
+      --muted: #57645f;
+      --line: #d5dcd7;
+      --paper: #fff;
+      --soft: #f4f6f3;
+      --pine: #284f42;
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+      color: var(--ink);
+      background: #f4f4ef;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .app-shell { width: min(100% - 40px, 720px); margin: 56px auto 72px; }
+    .masthead { border-top: 3px solid var(--pine); padding: 24px 0 26px; }
+    h1, h2, h3, summary { margin: 0; line-height: 1.35; letter-spacing: -.035em; }
+    h1 { font-size: clamp(1.85rem, 4vw, 2.45rem); font-weight: 700; }
+    h2, summary { font-size: 1.22rem; font-weight: 700; }
+    h3 { font-size: 1rem; }
+    .subtitle { word-break: keep-all; margin: 7px 0 0; color: var(--muted); line-height: 1.55; }
+    .card { background: var(--paper); padding: 28px 32px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 12px; }
+    .card > h2 { margin-bottom: 20px; }
+    .block-title { margin: 26px 0 16px; padding-top: 22px; border-top: 1px solid var(--line); }
+    .top-fields, .person-wrap, .inline-2, #vehicleForm { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 18px; }
+    .top-fields { align-items: end; }
+    .top-fields .field, .person-wrap .field, #vehicleForm .field { margin: 0; }
+    .segmented { display: flex; padding: 3px; border-radius: 8px; background: var(--soft); border: 1px solid var(--line); }
+    button, input, select, textarea { font: inherit; }
+    button, summary { cursor: pointer; }
+    button { border: 1px solid transparent; border-radius: 7px; font-weight: 600; }
+    .seg-btn { flex: 1; padding: 8px 4px; color: var(--muted); background: transparent; }
+    .seg-btn.active, .primary-btn { background: var(--pine); color: white; }
+    .field { margin-bottom: 16px; }
+    label, .field-label { display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 600; color: var(--ink); }
+    label i { display:none; }
+    input, select, textarea { width: 100%; min-width: 0; height: 44px; padding: 9px 11px; background: white; border: 1px solid #b9c4bc; border-radius: 6px; color: var(--ink); }
+    input::placeholder { color: #67736d; font-weight: 400; }
+    :focus-visible { outline: 3px solid #739784; outline-offset: 2px; }
+    select:disabled { opacity: 1; color: var(--pine); background: var(--soft); }
+    .name-row { display:grid; grid-template-columns: minmax(0,1fr) 6.2em; gap: 6px; }
+    .hint-tag { align-self: end; color: var(--muted); font-size: .85rem; }
+    .family-actions { margin-top: 16px; }
+    .overlap-head, .overlap-top, .result-meta, .result-headline, .schedule-title { display:flex; align-items:center; gap: 8px; }
+    .overlap-head h3, .schedule-title h2 { margin-right: auto; }
+    .overlap-head select, .overlap-top select { flex:1; width: auto; min-width: 0; }
+    .outline-btn, .copy-btn, .delete-btn, .ghost-btn { color: var(--pine); border-color: #bccbc2; background: white; padding: 9px 12px; }
+    .outline-btn, .delete-btn, .copy-btn { flex: none; font-size: .86rem; }
+    .remove-event, .delete-btn { color: var(--muted); }
+    .schedule-box, .overlap-card, .result-box { margin: 10px 0; padding: 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--soft); }
+    .schedule-box .inline-2, .overlap-top { margin: 12px 0; }
+    .overlap-card .field:last-child { margin-bottom: 0; }
+    .check-line { display:flex; align-items:center; gap:8px; min-height: 36px; margin: 0 0 6px; cursor:pointer; }
+    .check-line input { width: 18px; height: 18px; margin:0; accent-color: var(--pine); }
+    .schedule-title .check-line { margin: 0; }
+    .inline-2 label { margin: 0; }
+    .inline-2 input { margin-top: 5px; }
+    .inline-2 label:has(input[hidden]) { display:none; }
+    #addSchedule, #addDetailSchedule { margin-bottom: 18px; }
+    .primary-btn, .ghost-btn { width: 100%; padding: 13px; margin-top: 8px; }
+    button:hover { filter: brightness(.96); }
+    .result-meta { justify-content: space-between; flex-wrap:wrap; margin-bottom: 10px; }
+    .result-headline { flex-wrap:wrap; }
+    .result-title { font-weight: 700; }
+    .byte-chip, .badge-chip { color: var(--muted); font-size: .8rem; }
+    .badge-chip { padding: 3px 6px; border-radius: 4px; background: #e4ebe4; }
+    .result-box.success { border-left: 3px solid var(--pine); }
+    .result-text, .auto-hall-text { margin:0; font: inherit; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; }
+    #vehicle summary { color: var(--pine); }
+    #vehicleForm { margin-top:20px; }
+    #vehicleForm button, #tripField { grid-column: 1/-1; }
+    #vehicleResult .copy-btn { display:block; margin:0 0 12px auto; }
+    .hidden, [hidden] { display:none !important; }
+    @media (max-width: 580px) {
+      .app-shell { width: calc(100% - 24px); margin:20px auto 32px; }
+      .masthead { padding:18px 4px 20px; }
+      .card { padding:20px 16px; }
+      .person-wrap, #vehicleForm { grid-template-columns: minmax(0,1fr); }
+      .top-fields { gap:10px; }
+      .schedule-box, .overlap-card { padding:12px; }
+      .inline-2 { gap:8px; }
+      input, select { font-size:16px; }
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #f8fbff 0%, var(--bg) 52%, #eef2f5 100%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 22px 14px 40px;
-    }
-
-    .app-shell {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
-      display: grid;
-      gap: 14px;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-      padding: 30px 24px;
-      border: 1px solid rgba(255, 255, 255, 0.95);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 1.38rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    h2 {
-      margin: 0;
-      font-size: 1.06rem;
-      letter-spacing: -0.01em;
-    }
-
-    .subtitle {
-      margin: 7px 0 0;
-      color: var(--text-sub);
-      font-size: 0.92rem;
-      line-height: 1.45;
-    }
-
-    .segmented {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      background: #edf1f4;
-      border-radius: 16px;
-      padding: 4px;
-      margin: 20px 0 18px;
-    }
-
-    .seg-btn {
-      border: 0;
-      border-radius: 12px;
-      background: transparent;
-      color: var(--text-sub);
-      font-size: 0.93rem;
-      font-weight: 700;
-      padding: 11px 8px;
-      transition: all 0.18s ease;
-      cursor: pointer;
-    }
-
-    .seg-btn.active {
-      background: #fff;
-      color: var(--primary);
-      box-shadow: 0 4px 12px rgba(44, 62, 80, 0.12);
-    }
-
-    .seg-btn[data-mode="church"].active {
-      color: var(--accent);
-    }
-
-    .field {
-      margin-bottom: 13px;
-    }
-
-    .field:last-child {
-      margin-bottom: 0;
-    }
-
-    label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 7px;
-      font-size: 0.85rem;
-      color: var(--text-sub);
-      font-weight: 600;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-family: inherit;
-      font-size: 0.94rem;
-      color: var(--text);
-      background: #fff;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.13);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 86px;
-    }
-
-    .person-wrap {
-      background: #f7f9fb;
-      border: 1px solid #eef2f5;
-      border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-
-    .row {
-      display: grid;
-      gap: 8px;
-    }
-
-    .name-row {
-      grid-template-columns: 7fr 3fr;
-    }
-
-    .inline-2 {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .hint-tag {
-      margin-top: 2px;
-      display: inline-flex;
-      font-size: 0.78rem;
-      color: var(--accent);
-      background: rgba(52, 152, 219, 0.11);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-weight: 700;
-    }
-
-    .switch-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 11px 13px;
-      margin-bottom: 12px;
-      background: #fafbfd;
-    }
-
-    .switch-row strong {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .switch {
-      position: relative;
-      width: 44px;
-      height: 24px;
-      display: inline-block;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-      position: absolute;
-    }
-
-    .slider {
-      position: absolute;
-      inset: 0;
-      background: #c8d1db;
-      border-radius: 999px;
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-
-    .slider::before {
-      content: "";
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      left: 3px;
-      top: 3px;
-      background: #fff;
-      border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      transition: transform 0.2s ease;
-    }
-
-    .switch input:checked + .slider {
-      background: var(--accent);
-    }
-
-    .switch input:checked + .slider::before {
-      transform: translateX(20px);
-    }
-
-    .section-title {
-      margin: 4px 0 10px;
-      font-size: 0.9rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    .schedule-box {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 10px;
-      background: #fff;
-    }
-
-    .schedule-box:last-child {
-      margin-bottom: 0;
-    }
-
-    .schedule-box h3 {
-      margin: 0 0 9px;
-      font-size: 0.86rem;
-      color: var(--text-sub);
-      font-weight: 700;
-    }
-
-    .overlap-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 9px;
-    }
-
-    .overlap-head h3 {
-      margin: 0;
-      font-size: 0.9rem;
-      color: var(--primary);
-    }
-
-    .outline-btn {
-      border: 1px solid var(--border);
-      background: #fff;
-      color: var(--accent);
-      border-radius: 12px;
-      padding: 8px 10px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .overlap-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .overlap-card {
-      border: 1px solid #dce7f2;
-      border-radius: 14px;
-      padding: 11px;
-      background: #f8fbff;
-    }
-
-    .overlap-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 9px;
-    }
-
-    .overlap-top select {
-      width: 100%;
-    }
-
-    .delete-btn {
-      border: 0;
-      background: rgba(231, 76, 60, 0.09);
-      color: var(--red);
-      border-radius: 10px;
-      width: 34px;
-      height: 34px;
-      cursor: pointer;
-      flex: 0 0 auto;
-    }
-
-    .primary-btn,
-    .ghost-btn {
-      border: 0;
-      width: 100%;
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .primary-btn {
-      background: var(--primary);
-      color: #fff;
-      margin-top: 16px;
-    }
-
-    .primary-btn:hover {
-      filter: brightness(0.98);
-    }
-
-    .ghost-btn {
-      margin-top: 12px;
-      color: var(--accent);
-      background: rgba(52, 152, 219, 0.1);
-    }
-
-    .result-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .result-box {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
-      background: #f8fafb;
-      animation: fadeInUp 0.3s ease;
-    }
-
-    .result-box.warning {
-      background: #fff7ea;
-      border-color: #ffd89a;
-    }
-
-    .result-box.success {
-      background: #effbf3;
-      border-color: #b8ecc8;
-    }
-
-    .result-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .result-headline {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-
-    .result-title {
-      font-size: 0.9rem;
-      font-weight: 800;
-      color: var(--primary);
-    }
-
-    .byte-chip,
-    .badge-chip {
-      border-radius: 999px;
-      padding: 3px 8px;
-      font-size: 0.74rem;
-      font-weight: 700;
-    }
-
-    .byte-chip {
-      background: #e9eef3;
-      color: #51606f;
-    }
-
-    .badge-chip.sms {
-      background: rgba(39, 174, 96, 0.12);
-      color: var(--green);
-    }
-
-    .badge-chip.lms {
-      background: rgba(243, 156, 18, 0.14);
-      color: #c77700;
-    }
-
-    .copy-btn {
-      border: 0;
-      border-radius: 10px;
-      padding: 7px 10px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      background: #fff;
-      color: var(--primary);
-      cursor: pointer;
-    }
-
-    .result-text {
-      margin: 0;
-      font-size: 0.86rem;
-      line-height: 1.53;
-      white-space: pre-wrap;
-      word-break: break-all;
-      font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      color: #253647;
-    }
-
-    .step2-grid {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .step2-box {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #fff;
-      padding: 12px;
-    }
-
-    .step2-box h3 {
-      margin: 0 0 8px;
-      font-size: 0.87rem;
-      color: var(--text-sub);
-    }
-
-    .check-line {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      margin-top: 8px;
-      color: var(--text-sub);
-      font-size: 0.82rem;
-      font-weight: 600;
-    }
-
-    .check-line input {
-      width: 15px;
-      height: 15px;
-      margin: 0;
-    }
-
-    .auto-hall-text {
-      margin: 0;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      background: #f6f8fa;
-      color: #44576a;
-      font-size: 0.93rem;
-      line-height: 1.4;
-    }
-
-    #vehicle summary { cursor: pointer; font-size: 1.2rem; font-weight: 700; }
-    #vehicle form { margin-top: 16px; }
-
-    .hidden {
-      display: none !important;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(-5px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     @media (max-width: 380px) {
-      .card {
-        padding: 24px 18px;
-      }
-
-      .name-row {
-        grid-template-columns: 1fr;
-      }
+      .inline-2 { grid-template-columns: minmax(0,1fr); }
     }
   </style>
 </head>
 <body>
   <main class="app-shell">
-    <section class="card">
+    <header class="masthead">
       <h1>장례 안내 문자 생성기</h1>
-      <p class="subtitle">교구장/교회장 문자와 교우소식(상세)을 한 번에 작성합니다.</p>
+      <p class="subtitle">교구장·교회장 장례문자, 교우소식과 차량신청을 작성합니다.</p>
 
-      <div class="segmented" role="tablist" aria-label="모드 선택">
+    </header>
+    <section class="card">
+      <div class="top-fields">
+        <div>
+          <span class="field-label">장례 구분</span>
+      <div class="segmented" role="group" aria-label="모드 선택">
         <button type="button" class="seg-btn active" data-mode="district">교구장</button>
         <button type="button" class="seg-btn" data-mode="church">교회장</button>
       </div>
 
+        </div>
       <div class="field">
         <label for="districtName"><i class="ri-map-pin-user-line"></i>교구</label>
         <input id="districtName" type="text" required>
       </div>
 
+      </div>
+      <h2 class="block-title">교인 정보</h2>
       <div class="person-wrap">
         <div class="field">
           <label for="name1">이름/직분</label>
@@ -556,14 +144,16 @@
         <span id="goTag" class="hint-tag hidden">* '故' 자동추가</span>
       </div>
 
-      <div class="schedule-box">
+      <div class="family-actions">
         <div class="overlap-head">
           <h3>추가 유가족 · 겹장</h3>
           <button type="button" id="addOverlapBtn" class="outline-btn">유가족 추가</button>
         </div>
         <div id="overlapList" class="overlap-list"></div>
       </div>
+      <div class="schedule-title block-title"><h2>장례 일정</h2>
       <label class="check-line"><input id="individualVisit" type="checkbox"> 개별조문</label>
+      </div>
       <div id="schedules"></div>
       <button type="button" id="addSchedule" class="outline-btn">일정 추가</button>
 
@@ -576,17 +166,17 @@
     </section>
 
     <section id="resultSection" class="card hidden">
-      <h2>Step 1 결과</h2>
+      <h2>장례문자 결과</h2>
       <div id="resultBoxes" class="result-list" aria-live="polite"></div>
       <button type="button" id="openStep2Btn" class="ghost-btn">교우소식(상세) 작성하기</button>
       <button type="button" id="openVehicle" class="ghost-btn">차량신청 작성하기</button>
     </section>
 
     <section id="step2Section" class="card hidden">
-      <h2>Step 2 교우소식(상세)</h2>
+      <h2>교우소식 작성</h2>
 
       <div class="field">
-        <label for="step2Header">제목(헤더)</label>
+        <label for="step2Header">교우소식 제목</label>
         <input id="step2Header" type="text">
       </div>
 
@@ -899,6 +489,7 @@
       currentMode = mode;
       els.segButtons.forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.mode === mode);
+        btn.setAttribute("aria-pressed", String(btn.dataset.mode === mode));
       });
       const isDistrict = mode === "district";
       els.relationField.classList.toggle("hidden", !isDistrict);
@@ -944,8 +535,8 @@
           <button type="button" class="outline-btn remove-event">삭제</button>
         </div>
         <div class="row inline-2">
-          <input type="date" aria-label="일정 날짜">
-          <input type="text" class="event-time" aria-label="일정 시간 직접 입력 (선택)" placeholder="오후 2시 30분">
+          <label>날짜<input type="date" aria-label="일정 날짜"></label>
+          <label>시간<input type="text" class="event-time" aria-label="일정 시간 직접 입력 (선택)" placeholder="오후 2시 30분"></label>
         </div>
         <label class="check-line"><input type="checkbox"> 교회출발</label>
         <input class="place" aria-label="이 일정의 장소 또는 변경 안내" placeholder="이 일정의 장소 또는 변경 안내 (선택)">`;
@@ -1096,7 +687,7 @@
             <option value="교구장">교구장</option>
             <option value="교회장">교회장</option>
           </select>
-          <button type="button" class="delete-btn" aria-label="겹장 삭제"><i class="ri-delete-bin-6-line"></i></button>
+          <button type="button" class="delete-btn" aria-label="겹장 삭제">삭제</button>
         </div>
         <div class="field">
           <input class="j-district" type="text" placeholder="교구 (비워 두면 대표 교구 적용)">
