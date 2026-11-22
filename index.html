@@ -9,43 +9,57 @@
   <style>
     :root {
       color-scheme: light;
-      --ink: #222d2a;
-      --muted: #57645f;
-      --line: #d5dcd7;
-      --paper: #fff;
-      --soft: #f4f6f3;
-      --pine: #284f42;
+      --ink: #161614;
+      --muted: #5e5c56;
+      --line: #d0cabe;
+      --paper: #faf8f0;
+      --soft: #eeebe2;
+      --pine: #07545a;
       font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
       color: var(--ink);
-      background: #f4f4ef;
+      background: #f3f0e6;
     }
     * { box-sizing: border-box; }
-    body { margin: 0; }
-    .app-shell { width: min(100% - 40px, 720px); margin: 56px auto 72px; }
-    .masthead { border-top: 3px solid var(--pine); padding: 24px 0 26px; }
+    body {
+      margin: 0;
+      background-image: linear-gradient(90deg, #ada79526 1px, transparent 1px);
+      background-size: max(64px, calc(100vw / 12)) 100%;
+    }
+    .app-shell { width: min(calc(100% - 80px), 1184px); margin: 56px auto 72px;
+      display: grid; grid-template-columns: minmax(240px, .8fr) minmax(0, 1.7fr);
+      align-items: start; gap: clamp(28px, 5vw, 76px); }
+    .masthead { position: sticky; top: 40px; padding: 18px 0 0; border-top: 2px solid var(--ink); }
     h1, h2, h3, summary { margin: 0; line-height: 1.35; letter-spacing: -.035em; }
-    h1 { font-size: clamp(1.85rem, 4vw, 2.45rem); font-weight: 700; }
+    h1 { font-size: clamp(2.85rem, 4.7vw, 4.5rem); font-weight: 800; line-height: 1.08; letter-spacing: -.075em; }
+    h1 span { display: block; }
+    .workspace { min-width: 0; }
+    .task-links { display: grid; margin-top: 36px; border-top: 1px solid var(--line); }
+    .task-links a { display: flex; align-items:center; justify-content:space-between; padding: 13px 1px; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; font-weight: 650; }
+    .task-links a::after { content: "↘"; color: var(--pine); }
+    .task-links a:hover { color: var(--pine); }
     h2, summary { font-size: 1.22rem; font-weight: 700; }
     h3 { font-size: 1rem; }
     .subtitle { word-break: keep-all; margin: 7px 0 0; color: var(--muted); line-height: 1.55; }
-    .card { background: var(--paper); padding: 28px 32px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 12px; }
+    .card { background: var(--paper); padding: 28px 32px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 5px; box-shadow: 0 2px 4px #302c2010; scroll-margin-top: 16px; }
     .card > h2 { margin-bottom: 20px; }
     .block-title { margin: 26px 0 16px; padding-top: 22px; border-top: 1px solid var(--line); }
     .top-fields, .person-wrap, .inline-2, #vehicleForm { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 18px; }
     .top-fields { align-items: end; }
     .top-fields .field, .person-wrap .field, #vehicleForm .field { margin: 0; }
-    .segmented { display: flex; padding: 3px; border-radius: 8px; background: var(--soft); border: 1px solid var(--line); }
+    .segmented { display: flex; height:44px; border-bottom: 1px solid var(--line); }
     button, input, select, textarea { font: inherit; }
     button, summary { cursor: pointer; }
-    button { border: 1px solid transparent; border-radius: 7px; font-weight: 600; }
+    button { border: 1px solid transparent; border-radius: 4px; font-weight: 600; }
     .seg-btn { flex: 1; padding: 8px 4px; color: var(--muted); background: transparent; }
-    .seg-btn.active, .primary-btn { background: var(--pine); color: white; }
+    .seg-btn { border-radius: 0; }
+    .seg-btn.active { color: var(--pine); border-bottom: 3px solid var(--pine); }
+    .primary-btn { background: var(--pine); color: white; }
     .field { margin-bottom: 16px; }
     label, .field-label { display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 600; color: var(--ink); }
     label i { display:none; }
-    input, select, textarea { width: 100%; min-width: 0; height: 44px; padding: 9px 11px; background: white; border: 1px solid #b9c4bc; border-radius: 6px; color: var(--ink); }
-    input::placeholder { color: #67736d; font-weight: 400; }
-    :focus-visible { outline: 3px solid #739784; outline-offset: 2px; }
+    input, select, textarea { width: 100%; min-width: 0; height: 44px; padding: 9px 11px; background: var(--paper); border: 1px solid #b5b0a4; border-radius: 4px; color: var(--ink); }
+    input::placeholder { color: #67645e; font-weight: 400; }
+    :focus-visible { outline: 3px solid #197278; outline-offset: 2px; }
     select:disabled { opacity: 1; color: var(--pine); background: var(--soft); }
     .name-row { display:grid; grid-template-columns: minmax(0,1fr) 6.2em; gap: 6px; }
     .hint-tag { align-self: end; color: var(--muted); font-size: .85rem; }
@@ -53,10 +67,10 @@
     .overlap-head, .overlap-top, .result-meta, .result-headline, .schedule-title { display:flex; align-items:center; gap: 8px; }
     .overlap-head h3, .schedule-title h2 { margin-right: auto; }
     .overlap-head select, .overlap-top select { flex:1; width: auto; min-width: 0; }
-    .outline-btn, .copy-btn, .delete-btn, .ghost-btn { color: var(--pine); border-color: #bccbc2; background: white; padding: 9px 12px; }
+    .outline-btn, .copy-btn, .delete-btn, .ghost-btn { color: var(--pine); border-color: #b8b4a9; background: var(--paper); padding: 9px 12px; }
     .outline-btn, .delete-btn, .copy-btn { flex: none; font-size: .86rem; }
     .remove-event, .delete-btn { color: var(--muted); }
-    .schedule-box, .overlap-card, .result-box { margin: 10px 0; padding: 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--soft); }
+    .schedule-box, .overlap-card, .result-box { margin: 10px 0; padding: 16px; border-radius: 5px; border: 1px solid var(--line); background: var(--soft); }
     .schedule-box .inline-2, .overlap-top { margin: 12px 0; }
     .overlap-card .field:last-child { margin-bottom: 0; }
     .check-line { display:flex; align-items:center; gap:8px; min-height: 36px; margin: 0 0 6px; cursor:pointer; }
@@ -72,7 +86,7 @@
     .result-headline { flex-wrap:wrap; }
     .result-title { font-weight: 700; }
     .byte-chip, .badge-chip { color: var(--muted); font-size: .8rem; }
-    .badge-chip { padding: 3px 6px; border-radius: 4px; background: #e4ebe4; }
+    .badge-chip { padding: 3px 6px; border-radius: 4px; background: #e4e1d8; }
     .result-box.success { border-left: 3px solid var(--pine); }
     .result-text, .auto-hall-text { margin:0; font: inherit; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; }
     details.card summary { color: var(--pine); }
@@ -81,9 +95,17 @@
     #vehicleForm button, #tripField { grid-column: 1/-1; }
     #vehicleResult .copy-btn { display:block; margin:0 0 12px auto; }
     .hidden, [hidden] { display:none !important; }
+    @media (max-width: 880px) {
+      .app-shell { display:block; width:min(calc(100% - 48px), 700px); margin:28px auto 48px; }
+      .masthead { position:static; margin-bottom:16px; padding:18px 0 0; }
+      .task-links { display:flex; gap:14px; margin-top:18px; }
+      .task-links a { flex:1; font-size:.92rem; gap:4px; }
+      h1 span { display:inline; }
+    }
     @media (max-width: 580px) {
       .app-shell { width: calc(100% - 24px); margin:20px auto 32px; }
-      .masthead { padding:18px 4px 20px; }
+      .masthead { padding:16px 0 0; }
+      h1 { font-size:clamp(2.15rem, 8.7vw, 3rem); }
       .card { padding:20px 16px; }
       .person-wrap, #vehicleForm { grid-template-columns: minmax(0,1fr); }
       .top-fields { gap:10px; }
@@ -99,11 +121,17 @@
 <body>
   <main class="app-shell">
     <header class="masthead">
-      <h1>장례 안내 문자 생성기</h1>
-      <p class="subtitle">교구장·교회장 장례문자, 교우소식과 차량신청을 작성합니다.</p>
+      <h1><span>장례 안내</span> <span>문자 생성기</span></h1>
+      <nav class="task-links" aria-label="작성할 문구 선택">
+        <a href="#funeral">장례문자</a>
+        <a href="#step2Section">교우소식</a>
+        <a href="#vehicle">차량신청</a>
+      </nav>
 
     </header>
-    <section class="card">
+    <div class="workspace">
+    <section class="card" id="funeral">
+      <h2>장례문자 작성</h2>
       <div class="top-fields">
         <div>
           <span class="field-label">장례 구분</span>
@@ -257,6 +285,7 @@
         <pre class="result-text" id="vehicleText"></pre>
       </div>
     </details>
+    </div>
   </main>
 
   <script>
@@ -882,6 +911,17 @@
       toggleMode("district");
       bindEvents();
       bindVehicleForm();
+      function openLinkedPanel(hash) {
+        if (hash === "#step2Section" || hash === "#vehicle") {
+          document.getElementById(hash.slice(1)).open = true;
+        }
+      }
+      document.querySelector(".task-links").addEventListener("click", event => {
+        const link = event.target.closest("a");
+        if (link) openLinkedPanel(link.hash);
+      });
+      window.addEventListener("hashchange", () => openLinkedPanel(location.hash));
+      openLinkedPanel(location.hash);
     }
 
     init();
