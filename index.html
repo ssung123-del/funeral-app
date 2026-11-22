@@ -79,13 +79,12 @@
     h1 { font-size: clamp(2.85rem, 4.7vw, 4.5rem); font-weight: 800; line-height: 1.08; letter-spacing: -.075em; }
     h1 span { display: block; }
     .workspace { min-width: 0; }
-    .task-links { display: grid; margin-top: 36px; border-top: 1px solid var(--line); }
-    .task-links a { display: flex; align-items:center; justify-content:space-between; padding: 13px 1px; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; font-weight: 650; }
+    .task-links { display: grid; margin-top: 30px; gap: 8px; }
+    .task-links a { display: flex; align-items:center; justify-content:space-between; min-height: 44px; padding: 10px 12px; border: 1px solid var(--outline); border-radius: 4px; background: var(--paper); color: var(--ink); text-decoration: none; font-weight: 650; }
     .task-links a::after { content: "↘"; color: var(--pine); }
-    .task-links a:hover { color: var(--pine); }
+    .task-links a:hover { color: var(--pine); background: var(--soft); }
     h2, summary { font-size: 1.22rem; font-weight: 700; }
     h3 { font-size: 1rem; }
-    .subtitle { word-break: keep-all; margin: 7px 0 0; color: var(--muted); line-height: 1.55; }
     .card { background: var(--paper); padding: 28px 32px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 5px; box-shadow: 0 2px 4px var(--shadow); scroll-margin-top: 16px; }
     .card > h2 { margin-bottom: 20px; }
     .block-title { margin: 26px 0 16px; padding-top: 22px; border-top: 1px solid var(--line); }
@@ -98,7 +97,7 @@
     button { border: 1px solid transparent; border-radius: 4px; font-weight: 600; }
     .seg-btn { flex: 1; padding: 8px 4px; color: var(--muted); background: transparent; }
     .seg-btn { border-radius: 0; }
-    .seg-btn.active { color: var(--pine); border-bottom: 3px solid var(--pine); }
+    .seg-btn.active { color: var(--pine); background: var(--soft); border-bottom: 3px solid var(--pine); font-weight: 750; }
     .primary-btn { background: var(--pine); color: var(--on-pine); }
     .field { margin-bottom: 16px; }
     label, .field-label { display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 600; color: var(--ink); }
@@ -106,7 +105,8 @@
     input, select, textarea { width: 100%; min-width: 0; height: 44px; padding: 9px 11px; background: var(--paper); border: 1px solid var(--control); border-radius: 4px; color: var(--ink); }
     input::placeholder { color: var(--placeholder); font-weight: 400; }
     :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-    select:disabled { opacity: 1; color: var(--pine); background: var(--soft); }
+    select:disabled { opacity: 1; color: var(--muted); background: var(--soft); cursor: default; }
+    .check-line:has(input:disabled) { color: var(--muted); cursor: default; }
     .name-row { display:grid; grid-template-columns: minmax(0,1fr) 6.2em; gap: 6px; }
     .hint-tag { align-self: end; color: var(--muted); font-size: .85rem; }
     .family-actions { margin-top: 16px; }
@@ -117,7 +117,9 @@
     .outline-btn, .delete-btn, .copy-btn { flex: none; font-size: .86rem; }
     .remove-event, .delete-btn { color: var(--muted); }
     .schedule-box, .overlap-card, .result-box { margin: 10px 0; padding: 16px; border-radius: 5px; border: 1px solid var(--line); background: var(--soft); }
-    .schedule-box .inline-2, .overlap-top { margin: 12px 0; }
+    .schedule-box .inline-2 { margin: 12px 0 3px; }
+    .schedule-box .place { margin-top: 4px; }
+    .overlap-top { margin: 12px 0; }
     .overlap-card .field:last-child { margin-bottom: 0; }
     .check-line { display:flex; align-items:center; gap:8px; min-height: 36px; margin: 0 0 6px; cursor:pointer; }
     .check-line input { width: 18px; height: 18px; margin:0; accent-color: var(--pine); }
@@ -130,7 +132,11 @@
     button:hover { filter: brightness(.96); }
     .result-meta { justify-content: space-between; flex-wrap:wrap; margin-bottom: 10px; }
     .result-headline { flex-wrap:wrap; }
-    .result-title { font-weight: 700; }
+    .result-title { font-weight: 750; font-size: 1.05rem; }
+    .result-headline .result-title { flex-basis: 100%; }
+    .result-box .copy-btn { min-height: 44px; background: var(--pine); color: var(--on-pine); }
+    .required-label { margin-inline-start: 5px; color: var(--pine); font-size: .76rem; }
+    .venue-field { margin-top: 4px; padding-top: 18px; border-top: 1px solid var(--line); }
     .byte-chip, .badge-chip { color: var(--muted); font-size: .8rem; }
     .badge-chip { padding: 3px 6px; border-radius: 4px; background: var(--chip); }
     .result-box.success { border-left: 3px solid var(--pine); }
@@ -144,8 +150,8 @@
     @media (max-width: 880px) {
       .app-shell { display:block; width:min(calc(100% - 48px), 700px); margin:28px auto 48px; }
       .masthead { position:static; margin-bottom:16px; padding:18px 0 0; }
-      .task-links { display:flex; gap:14px; margin-top:18px; }
-      .task-links a { flex:1; font-size:.92rem; gap:4px; }
+      .task-links { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top:18px; }
+      .task-links a { font-size:.88rem; gap:4px; padding-inline:8px; }
       h1 span { display:inline; }
     }
     @media (max-width: 580px) {
@@ -160,7 +166,9 @@
       input, select { font-size:16px; }
     }
     @media (max-width: 380px) {
-      .inline-2 { grid-template-columns: minmax(0,1fr); }
+      .top-fields, .inline-2 { grid-template-columns: minmax(0,1fr); }
+      .task-links a { justify-content:center; }
+      .task-links a::after { display:none; }
     }
   </style>
 </head>
@@ -196,7 +204,7 @@
 
         </div>
       <div class="field">
-        <label for="districtName"><i class="ri-map-pin-user-line"></i>교구</label>
+        <label for="districtName">교구 <span class="required-label" aria-hidden="true">필수</span></label>
         <input id="districtName" type="text" required>
       </div>
 
@@ -207,7 +215,7 @@
           <label for="name1">이름/직분</label>
           <div class="row name-row">
             <input id="name1" type="text" placeholder="이름 (예: 홍길동)">
-            <select id="title1"></select>
+            <select id="title1" aria-label="교인 직분"></select>
           </div>
         </div>
 
@@ -215,7 +223,7 @@
           <label for="name2">배우자/직분</label>
           <div class="row name-row">
             <input id="name2" type="text" placeholder="배우자 (없으면 빈칸)">
-            <select id="title2"></select>
+            <select id="title2" aria-label="배우자 직분"></select>
           </div>
         </div>
 
@@ -240,8 +248,8 @@
       <div id="schedules"></div>
       <button type="button" id="addSchedule" class="outline-btn">일정 추가</button>
 
-      <div class="field">
-        <label for="funeralHall"><i class="ri-hospital-line"></i>장례식장</label>
+      <div class="field venue-field">
+        <label for="funeralHall">장례식장</label>
         <input id="funeralHall" type="text" placeholder="예: OO병원장례식장3호 또는 무빈소">
       </div>
 
