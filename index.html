@@ -75,8 +75,9 @@
     .badge-chip { padding: 3px 6px; border-radius: 4px; background: #e4ebe4; }
     .result-box.success { border-left: 3px solid var(--pine); }
     .result-text, .auto-hall-text { margin:0; font: inherit; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; }
-    #vehicle summary { color: var(--pine); }
+    details.card summary { color: var(--pine); }
     #vehicleForm { margin-top:20px; }
+    #loadNews { margin:16px 0; }
     #vehicleForm button, #tripField { grid-column: 1/-1; }
     #vehicleResult .copy-btn { display:block; margin:0 0 12px auto; }
     .hidden, [hidden] { display:none !important; }
@@ -172,8 +173,9 @@
       <button type="button" id="openVehicle" class="ghost-btn">차량신청 작성하기</button>
     </section>
 
-    <section id="step2Section" class="card hidden">
-      <h2>교우소식 작성</h2>
+    <details id="step2Section" class="card">
+      <summary>교우소식 작성하기</summary>
+      <button id="loadNews" type="button" class="outline-btn">장례문자 입력값 가져오기</button>
 
       <div class="field">
         <label for="step2Header">교우소식 제목</label>
@@ -184,8 +186,8 @@
       <div id="detailSchedules"></div>
       <button type="button" id="addDetailSchedule" class="outline-btn">일정 추가</button>
       <div class="field" style="margin-top: 12px;">
-        <label>빈소</label>
-        <p id="step2HallPreview" class="auto-hall-text">장례식장에서 자동 반영됩니다.</p>
+        <label for="newsHall">빈소</label>
+        <input id="newsHall" type="text">
       </div>
 
       <div class="field">
@@ -204,7 +206,7 @@
         </div>
         <pre id="step2Output" class="result-text"></pre>
       </div>
-    </section>
+    </details>
     <details class="card" id="vehicle">
       <summary>차량신청 작성하기</summary>
       <form id="vehicleForm">
@@ -272,7 +274,8 @@
     const titleOptionsSpouse = titleOptionsMain;
     let currentMode = "district";
     let overlapId = 0;
-    let lastGeneratedData = null;
+    let newsEdited = false;
+    let newsSource = null;
 
     const els = {
       segButtons: document.querySelectorAll(".seg-btn"),
@@ -294,7 +297,7 @@
       openStep2Btn: document.getElementById("openStep2Btn"),
       step2Section: document.getElementById("step2Section"),
       step2Header: document.getElementById("step2Header"),
-      step2HallPreview: document.getElementById("step2HallPreview"),
+      newsHall: document.getElementById("newsHall"),
       step2Cemetery: document.getElementById("step2Cemetery"),
       generateStep2Btn: document.getElementById("generateStep2Btn"),
       step2OutputWrap: document.getElementById("step2OutputWrap"),
@@ -598,37 +601,43 @@
       return parts;
     }
 
+    function readFuneralInfo(requireComplete) {
+      const church = currentMode === "church";
+      const type = church ? "교회장" : "교구장";
+      const district = normalizeDistrictName(els.districtName.value);
+      if (requireComplete && !district) {
+        els.districtName.focus();
+        throw new Error("장례문자 제목에 표시할 교구를 입력해 주세요.");
+      }
+      const name = els.name1.value.trim().replace(/^故\s*/, "");
+      const funeralHall = els.funeralHall.value.trim();
+      if (requireComplete && (!name || !funeralHall)) throw new Error("이름과 빈소(또는 무빈소)를 입력해 주세요.");
+      const relation = sanitizeRelation(els.relation.value);
+      if (requireComplete && !church && !relation) throw new Error("교구장 문자에 표시할 고인과의 관계(예: 모친, 장남)를 입력해 주세요.");
+      const family = collectOverlapData();
+      const groups = new Map([[type, new Set([district])]]);
+      for (const member of family) {
+        if (!groups.has(member.type)) groups.set(member.type, new Set());
+        groups.get(member.type).add(member.district || district);
+      }
+      const header = [...groups].map(([label, districts]) => {
+        const separator = groups.size === 1 ? "/" : ",";
+        return label + "-" + [...districts].join(separator);
+      }).join("/");
+      const person = buildPersonName(name, els.title1.value, els.name2.value, els.title2.value);
+      const lead = church ? "故" + person : person + relation;
+      const relatives = family.map(item => item.personName + item.relation);
+      const individual = els.individualVisit.checked;
+      const events = readSchedules(schedules);
+      if (requireComplete && !events.length && !individual) throw new Error("안내할 일정의 날짜를 입력하거나 개별조문을 선택해 주세요.");
+      const prefix = "[" + header + "]";
+      const heading = district && name ? [[prefix, lead].join(" ") + " 소천", ...relatives].join(" / ") : "";
+      return { church, prefix, lead, relatives, events, individual, funeralHall, heading };
+    }
+
     function generateStep1() {
       try {
-        const church = currentMode === "church";
-        const type = church ? "교회장" : "교구장";
-        const district = normalizeDistrictName(els.districtName.value);
-        if (!district) {
-          els.districtName.focus();
-          throw new Error("장례문자 제목에 표시할 교구를 입력해 주세요.");
-        }
-        const name = els.name1.value.trim().replace(/^故\s*/, "");
-        const funeralHall = els.funeralHall.value.trim();
-        if (!name || !funeralHall) throw new Error("이름과 빈소(또는 무빈소)를 입력해 주세요.");
-        const relation = sanitizeRelation(els.relation.value);
-        if (!church && !relation) throw new Error("교구장 문자에 표시할 고인과의 관계(예: 모친, 장남)를 입력해 주세요.");
-        const family = collectOverlapData();
-        const groups = new Map([[type, new Set([district])]]);
-        for (const member of family) {
-          if (!groups.has(member.type)) groups.set(member.type, new Set());
-          groups.get(member.type).add(member.district || district);
-        }
-        const header = [...groups].map(([label, districts]) => {
-          const separator = groups.size === 1 ? "/" : ",";
-          return label + "-" + [...districts].join(separator);
-        }).join("/");
-        const person = buildPersonName(name, els.title1.value, els.name2.value, els.title2.value);
-        const lead = church ? "故" + person : person + relation;
-        const relatives = family.map(item => item.personName + item.relation);
-        const individual = els.individualVisit.checked;
-        const events = readSchedules(schedules);
-        if (!events.length && !individual) throw new Error("안내할 일정의 날짜를 입력하거나 개별조문을 선택해 주세요.");
-        const prefix = "[" + header + "]";
+        const { church, prefix, lead, relatives, events, individual, funeralHall } = readFuneralInfo(true);
         const body = (departure, death) => [
           prefix + lead + death, ...relatives, ...(individual ? ["개별조문"] : []),
           ...scheduleParts(events, false, departure), funeralHall
@@ -640,34 +649,42 @@
           if (countBytes(shorter) > 90) shorter = body("교출", "");
           if (shorter !== message) items.push({ title: "단축안", content: shorter, tone: "success" });
         }
-        lastGeneratedData = { heading: [[prefix, lead].filter(Boolean).join(" ") + " 소천", ...relatives].join(" / "), events, individual, funeralHall };
-        els.step2Section.classList.add("hidden");
         renderResultBoxes(items);
       } catch (error) {
         alert(error.message);
       }
     }
 
-    function openStep2Form() {
-      const data = lastGeneratedData;
-      if (!data) return;
-      els.step2Header.value = data.heading;
-      detailVisit.checked = data.individual;
-      detailSchedules.replaceChildren();
-      data.events.forEach(event => addSchedule(detailSchedules, event));
-      els.step2HallPreview.textContent = data.funeralHall;
-      els.step2Cemetery.value = "";
-      els.step2OutputWrap.classList.add("hidden");
-      els.step2Section.classList.remove("hidden");
-      els.step2Section.scrollIntoView({ behavior: "smooth", block: "start" });
+    function loadNews(force = false) {
+      if (newsEdited && !force) return;
+      try {
+        const data = readFuneralInfo(false);
+        const source = JSON.stringify(data);
+        if (!force && source === newsSource) return;
+        els.step2Header.value = data.heading;
+        detailVisit.checked = data.individual;
+        detailSchedules.replaceChildren();
+        if (data.events.length) data.events.forEach(event => addSchedule(detailSchedules, event));
+        else addSchedule(detailSchedules, { kind: data.individual ? "발인" : "위로" });
+        els.newsHall.value = data.funeralHall;
+        els.step2OutputWrap.classList.add("hidden");
+        newsSource = source;
+        newsEdited = false;
+      } catch (error) {
+        if (force) alert(error.message);
+        if (!detailSchedules.children.length) addSchedule(detailSchedules);
+      }
     }
 
     function generateStep2() {
       try {
-        const lines = [els.step2Header.value.trim(), ""];
+        const heading = els.step2Header.value.trim();
+        const hall = els.newsHall.value.trim();
+        if (!heading || !hall) throw new Error("교우소식 제목과 빈소를 입력해 주세요.");
+        const lines = [heading, ""];
         if (detailVisit.checked) lines.push("개별조문");
         lines.push(...scheduleParts(readSchedules(detailSchedules), true));
-        lines.push("빈소: " + lastGeneratedData.funeralHall);
+        lines.push("빈소: " + hall);
         if (els.step2Cemetery.value.trim()) lines.push("장지: " + els.step2Cemetery.value.trim());
         els.step2Output.textContent = lines.join("\n");
         els.step2OutputWrap.classList.remove("hidden");
@@ -742,21 +759,30 @@
       document.getElementById("addSchedule").onclick = () => addSchedule(schedules, { kind: nextKind(schedules) });
       document.getElementById("addDetailSchedule").onclick = () => addSchedule(detailSchedules, { kind: nextKind(detailSchedules) });
       const invalidate = () => {
-        lastGeneratedData = null;
         els.resultSection.classList.add("hidden");
-        els.step2Section.classList.add("hidden");
       };
       const form = els.generateBtn.closest("section");
       form.addEventListener("input", invalidate);
       form.addEventListener("click", event => {
         if (event.target.closest("button") && !event.target.closest("#generateBtn")) invalidate();
       }, true);
-      els.step2Section.addEventListener("input", () => els.step2OutputWrap.classList.add("hidden"));
+      const markNewsEdited = () => {
+        newsEdited = true;
+        els.step2OutputWrap.classList.add("hidden");
+      };
+      els.step2Section.addEventListener("input", markNewsEdited);
+      document.getElementById("addDetailSchedule").addEventListener("click", markNewsEdited);
       detailSchedules.addEventListener("click", event => {
-        if (event.target.closest("button")) els.step2OutputWrap.classList.add("hidden");
+        if (event.target.closest(".remove-event")) markNewsEdited();
       }, true);
       els.generateBtn.addEventListener("click", generateStep1);
-      els.openStep2Btn.addEventListener("click", openStep2Form);
+      els.step2Section.addEventListener("toggle", () => { if (els.step2Section.open) loadNews(); });
+      document.getElementById("loadNews").onclick = () => loadNews(true);
+      els.openStep2Btn.onclick = () => {
+        loadNews();
+        els.step2Section.open = true;
+        els.step2Section.scrollIntoView({ behavior: "smooth" });
+      };
       els.generateStep2Btn.addEventListener("click", generateStep2);
       els.copyStep2Btn.addEventListener("click", () => copyText(els.step2Output.textContent || ""));
       els.addOverlapBtn.addEventListener("click", addOverlapCard);
