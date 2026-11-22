@@ -1158,7 +1158,7 @@
     function vehicleDestination(value) {
       // Keep the facility and branch name. Remove only a recognizable room or floor suffix.
       const location = value.trim().replace(/\s*\((?:B\d+|무빈소|[^()]*빈소이동[^()]*)\)\s*$/i, "");
-      const room = /\s*(?:[,·-]\s*)?(?:\(\s*)?(?:(?:지하\s*|B)?\d+\s*층\s*)?(?:(?:VIP|특별|특실|특|일반|국화|목련|매화|백합|장궁|효)\s*)?(?:제\s*)?(?:[AB]?\d+|[AB])?\s*(?:호실|호|분향소|분향실|빈소|실)(?:\s*특실)?\s*\)?$/i;
+      const room = /\s*(?:[,·-]\s*)?(?:\(\s*)?(?:(?:지하\s*|B)?\d+\s*층\s*)?(?:(?:(?:VIP|특별|특실|특|일반|국화|목련|매화|백합|장궁|효)\s*)?(?:제\s*)?(?:[AB]?\d+|[AB])\s*(?:호실|호|분향소|분향실|빈소|실)|(?:VIP|특별|특|일반|국화|목련|매화|백합|장궁)실)(?:\s*특실)?\s*\)?$/i;
       const withoutRoom = location.replace(room, "").trimEnd();
       // Bare room numbers and abbreviated names are common immediately after a facility name.
       return withoutRoom.replace(/(장례식장|장례문화원|추모관|마루공원|병원|장례문화센터|장례원)\s*(?:(?:지하\s*|B)?\d+\s*층\s*)?(?:VIP|특실|특|백합|접객실)?\s*\d*$/i, "$1").trim();
