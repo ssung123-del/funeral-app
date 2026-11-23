@@ -46,22 +46,26 @@
     }
     :root[data-theme="dark"] {
       color-scheme: dark;
-      --canvas: #151817;
-      --grid: #d4e1da0e;
-      --paper: #202524;
-      --soft: #2b3230;
-      --ink: #f1f2e9;
-      --muted: #c1c7bd;
-      --line: #505955;
-      --control: #82918a;
-      --outline: #819189;
-      --placeholder: #acb6af;
-      --pine: #8edbd5;
+      --canvas: #101619;
+      --grid: transparent;
+      --paper: #192328;
+      --soft: #25343a;
+      --ink: #f7fbfc;
+      --muted: #d1dce0;
+      --line: #536970;
+      --control: #8aa4af;
+      --outline: #8aa4af;
+      --placeholder: #bdcbd1;
+      --pine: #9cf0e4;
       --on-pine: #102e2c;
       --focus: #b4fff5;
-      --chip: #38443e;
+      --chip: #34474f;
       --shadow: #00000030;
     }
+    :root[data-theme="dark"] input,
+    :root[data-theme="dark"] select { background: var(--canvas); }
+    :root[data-theme="dark"] input::placeholder { opacity: 1; }
+    :root[data-theme="dark"] select:disabled { background: var(--soft); }
     .theme-picker { display:flex; align-items:center; gap:10px; margin-top:16px; }
     .theme-picker label { color:var(--muted); margin:0; font-weight:500; }
     .theme-picker select { width:auto; height:38px; font-size:.9rem; }
@@ -145,6 +149,23 @@
     #loadNews { margin:16px 0; }
     #vehicleForm button, #tripField { grid-column: 1/-1; }
     #vehicleResult .copy-btn { display:block; margin:0 0 12px auto; }
+    #resultSection { min-width: 0; }
+    #resultSection > h2 { margin-bottom: 12px; }
+    .preview-status { color: var(--muted); margin: 0 0 12px; line-height: 1.55; }
+    #resultSection .result-text { font-size: 1rem; line-height: 1.75; }
+    #resultSection .preview-draft { border: 1px dashed var(--control); padding: 12px; border-radius: 4px; }
+    @media (min-width: 1000px) {
+      .app-shell { display: block; width: min(calc(100% - 64px), 1240px); margin-top: 32px; }
+      .masthead { position: static; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; padding-bottom: 24px; }
+      .masthead h1 { font-size: clamp(1.75rem, 3vw, 2.65rem); margin-right: auto; }
+      .masthead h1 span { display: inline; }
+      .task-links { display: flex; margin: 0; }
+      .task-links a { gap: 10px; }
+      .theme-picker { margin: 0; }
+      .workspace { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); column-gap: 20px; align-items: start; }
+      .workspace > * { grid-column: 1; }
+      #resultSection { grid-column: 2; grid-row: 1 / span 3; position: sticky; top: 16px; max-height: calc(100dvh - 32px); overflow: auto; padding: 24px; }
+    }
     .hidden, [hidden] { display:none !important; }
     @media (max-width: 880px) {
       .app-shell { display:block; width:min(calc(100% - 48px), 700px); margin:28px auto 48px; }
@@ -255,9 +276,11 @@
       <button type="button" id="generateBtn" class="primary-btn">문자 생성하기</button>
     </section>
 
-    <section id="resultSection" class="card hidden">
-      <h2>장례문자 결과</h2>
-      <div id="resultBoxes" class="result-list" aria-live="polite"></div>
+    <section id="resultSection" class="card" aria-labelledby="previewTitle">
+      <h2 id="previewTitle">장례문자 미리보기</h2>
+      <p id="previewStatus" class="preview-status">입력하는 내용이 여기에 표시됩니다.</p>
+      <pre id="previewDraft" class="result-text preview-draft" hidden></pre>
+      <div id="resultBoxes" class="result-list"></div>
       <button type="button" id="openStep2Btn" class="ghost-btn">교우소식(상세) 작성하기</button>
       <button type="button" id="openVehicle" class="ghost-btn">차량신청 작성하기</button>
     </section>
@@ -550,8 +573,6 @@
       items.forEach((item) => {
         els.resultBoxes.appendChild(makeResultBox(item));
       });
-      els.resultSection.classList.remove("hidden");
-      els.resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function collectOverlapData() {
@@ -676,12 +697,12 @@
       return parts;
     }
 
-    function readFuneralInfo(requireComplete) {
+    function readFuneralInfo(requireComplete, focusInvalid = false) {
       const church = currentMode === "church";
       const type = church ? "교회장" : "교구장";
       const district = normalizeDistrictName(els.districtName.value);
       if (requireComplete && !district) {
-        els.districtName.focus();
+        if (focusInvalid) els.districtName.focus();
         throw new Error("장례문자 제목에 표시할 교구를 입력해 주세요.");
       }
       const name = els.name1.value.trim().replace(/^故\s*/, "");
@@ -710,23 +731,44 @@
       return { church, prefix, lead, relatives, events, individual, funeralHall, heading };
     }
 
-    function generateStep1() {
+    function funeralMessageResults({ church, prefix, lead, relatives, events, individual, funeralHall }) {
+      const body = (departure, death) => [
+        prefix + lead + death, ...relatives, ...(individual ? ["개별조문"] : []),
+        ...scheduleParts(events, false, departure), funeralHall
+      ].join("/");
+      const message = body("교회출", "소천");
+      const items = [{ title: "생성 결과", content: message }];
+      if (!church && countBytes(message) > 90) {
+        let shorter = body("교출", "소천");
+        if (countBytes(shorter) > 90) shorter = body("교출", "");
+        if (shorter !== message) items.push({ title: "단축안", content: shorter, tone: "success" });
+      }
+      return items;
+    }
+
+    function refreshFuneralPreview(explicit = false) {
+      const status = document.getElementById("previewStatus");
+      const draft = document.getElementById("previewDraft");
+      draft.hidden = true;
       try {
-        const { church, prefix, lead, relatives, events, individual, funeralHall } = readFuneralInfo(true);
-        const body = (departure, death) => [
-          prefix + lead + death, ...relatives, ...(individual ? ["개별조문"] : []),
-          ...scheduleParts(events, false, departure), funeralHall
-        ].join("/");
-        const message = body("교회출", "소천");
-        const items = [{ title: "생성 결과", content: message }];
-        if (!church && countBytes(message) > 90) {
-          let shorter = body("교출", "소천");
-          if (countBytes(shorter) > 90) shorter = body("교출", "");
-          if (shorter !== message) items.push({ title: "단축안", content: shorter, tone: "success" });
-        }
-        renderResultBoxes(items);
+        const data = readFuneralInfo(true, explicit);
+        renderResultBoxes(funeralMessageResults(data));
+        status.hidden = true;
+        if (explicit) els.resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (error) {
-        alert(error.message);
+        renderResultBoxes([]);
+        status.textContent = error.message;
+        status.hidden = false;
+        if (explicit) alert(error.message);
+
+        try {
+          const { heading, individual, events, funeralHall } = readFuneralInfo(false);
+          const lines = [heading, individual ? "개별조문" : "", ...scheduleParts(events, false), funeralHall];
+          draft.textContent = lines.filter(Boolean).join("/");
+          draft.hidden = !draft.textContent;
+        } catch {
+          draft.textContent = "";
+        }
       }
     }
 
@@ -833,13 +875,13 @@
       }
       document.getElementById("addSchedule").onclick = () => addSchedule(schedules, { kind: nextKind(schedules) });
       document.getElementById("addDetailSchedule").onclick = () => addSchedule(detailSchedules, { kind: nextKind(detailSchedules) });
-      const invalidate = () => {
-        els.resultSection.classList.add("hidden");
-      };
       const form = els.generateBtn.closest("section");
-      form.addEventListener("input", invalidate);
+      form.addEventListener("input", () => refreshFuneralPreview());
+      form.addEventListener("change", () => refreshFuneralPreview());
       form.addEventListener("click", event => {
-        if (event.target.closest("button") && !event.target.closest("#generateBtn")) invalidate();
+        if (event.target.closest("button") && !event.target.closest("#generateBtn")) {
+          requestAnimationFrame(() => refreshFuneralPreview());
+        }
       }, true);
       const markNewsEdited = () => {
         newsEdited = true;
@@ -850,7 +892,7 @@
       detailSchedules.addEventListener("click", event => {
         if (event.target.closest(".remove-event")) markNewsEdited();
       }, true);
-      els.generateBtn.addEventListener("click", generateStep1);
+      els.generateBtn.addEventListener("click", () => refreshFuneralPreview(true));
       els.step2Section.addEventListener("toggle", () => { if (els.step2Section.open) loadNews(); });
       document.getElementById("loadNews").onclick = () => loadNews(true);
       els.openStep2Btn.onclick = () => {
