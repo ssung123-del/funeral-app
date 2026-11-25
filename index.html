@@ -25,91 +25,80 @@
   <style>
     :root {
       color-scheme: light;
-      --canvas: #f3f0e6;
-      --grid: #ada79526;
-      --control: #b5b0a4;
-      --placeholder: #67645e;
-      --focus: #197278;
-      --outline: #b8b4a9;
-      --chip: #e4e1d8;
-      --shadow: #302c2010;
-      --on-pine: white;
-      --ink: #161614;
-      --muted: #5e5c56;
-      --line: #d0cabe;
-      --paper: #faf8f0;
-      --soft: #eeebe2;
-      --pine: #07545a;
-      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+      --canvas: #f2f2f7;
+      --paper: #ffffff;
+      --soft: #f1f3f8;
+      --ink: #16171b;
+      --muted: #535560;
+      --line: #dedfe7;
+      --control: #aeb3c0;
+      --outline: #b6c2d6;
+      --placeholder: #626674;
+      --pine: #005ac9;
+      --on-pine: #ffffff;
+      --focus: #005ac9;
+      --chip: #dceaff;
+      --shadow: #17264713;
+      --selection: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, sans-serif;
       color: var(--ink);
       background: var(--canvas);
     }
     :root[data-theme="dark"] {
       color-scheme: dark;
-      --canvas: #101619;
-      --grid: transparent;
-      --paper: #192328;
-      --soft: #25343a;
-      --ink: #f7fbfc;
-      --muted: #d1dce0;
-      --line: #536970;
-      --control: #8aa4af;
-      --outline: #8aa4af;
+      --canvas: #0e0f12;
+      --paper: #1c1e24;
+      --soft: #252832;
+      --ink: #f7f8fc;
+      --muted: #c8cbd6;
+      --line: #424652;
+      --control: #858da0;
+      --outline: #81899a;
       --placeholder: #bdcbd1;
-      --pine: #9cf0e4;
-      --on-pine: #102e2c;
-      --focus: #b4fff5;
-      --chip: #34474f;
-      --shadow: #00000030;
+      --pine: #91c3ff;
+      --on-pine: #102640;
+      --focus: #acd3ff;
+      --chip: #2b4160;
+      --shadow: #00000040;
+      --selection: #384153;
     }
-    :root[data-theme="dark"] input,
-    :root[data-theme="dark"] select { background: var(--canvas); }
     :root[data-theme="dark"] input::placeholder { opacity: 1; }
-    :root[data-theme="dark"] select:disabled { background: var(--soft); }
     .theme-picker { display:flex; align-items:center; gap:10px; margin-top:16px; }
     .theme-picker label { color:var(--muted); margin:0; font-weight:500; }
     .theme-picker select { width:auto; height:38px; font-size:.9rem; }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background-image: linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-      background-size: max(64px, calc(100vw / 12)) 100%;
-    }
-    .app-shell { width: min(calc(100% - 80px), 1184px); margin: 56px auto 72px;
-      display: grid; grid-template-columns: minmax(240px, .8fr) minmax(0, 1.7fr);
-      align-items: start; gap: clamp(28px, 5vw, 76px); }
-    .masthead { position: sticky; top: 40px; padding: 18px 0 0; border-top: 2px solid var(--ink); }
+    body { margin: 0; }
+    .app-shell { width: min(calc(100% - 48px), 700px); margin: 28px auto 48px; }
+    .masthead { margin-bottom: 20px; }
     h1, h2, h3, summary { margin: 0; line-height: 1.35; letter-spacing: -.035em; }
-    h1 { font-size: clamp(2.85rem, 4.7vw, 4.5rem); font-weight: 800; line-height: 1.08; letter-spacing: -.075em; }
-    h1 span { display: block; }
+    h1 { font-size: clamp(2.85rem, 4.7vw, 4.5rem); font-weight: 800; line-height: 1.08; letter-spacing: -.055em; }
     .workspace { min-width: 0; }
-    .task-links { display: grid; margin-top: 30px; gap: 8px; }
-    .task-links a { display: flex; align-items:center; justify-content:space-between; min-height: 44px; padding: 10px 12px; border: 1px solid var(--outline); border-radius: 4px; background: var(--paper); color: var(--ink); text-decoration: none; font-weight: 650; }
+    .task-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 18px; gap: 6px; padding: 4px; background: var(--soft); border: 1px solid var(--line); border-radius: 14px; }
+    .task-links a { display: flex; align-items:center; justify-content:center; gap: 8px; min-height: 44px; padding: 8px 12px; border-radius: 10px; color: var(--pine); text-decoration: none; font-weight: 650; }
     .task-links a::after { content: "↘"; color: var(--pine); }
-    .task-links a:hover { color: var(--pine); background: var(--soft); }
+    .task-links a:hover, .task-links a:focus-visible { background: var(--selection); }
     h2, summary { font-size: 1.22rem; font-weight: 700; }
     h3 { font-size: 1rem; }
-    .card { background: var(--paper); padding: 28px 32px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 5px; box-shadow: 0 2px 4px var(--shadow); scroll-margin-top: 16px; }
+    .card { background: var(--paper); padding: 28px 32px; margin-bottom: 16px; border: 1px solid var(--line); border-radius: 22px; box-shadow: 0 4px 16px var(--shadow); scroll-margin-top: 16px; }
     .card > h2 { margin-bottom: 20px; }
     .block-title { margin: 26px 0 16px; padding-top: 22px; border-top: 1px solid var(--line); }
     .top-fields, .person-wrap, .inline-2, #vehicleForm { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 18px; }
     .top-fields { align-items: end; }
     .top-fields .field, .person-wrap .field, #vehicleForm .field { margin: 0; }
-    .segmented { display: flex; height:44px; border-bottom: 1px solid var(--line); }
+    .segmented { display: flex; min-height: 44px; padding: 3px; gap: 3px; background: var(--soft); border-radius: 11px; }
     button, input, select, textarea { font: inherit; }
     button, summary { cursor: pointer; }
-    button { border: 1px solid transparent; border-radius: 4px; font-weight: 600; }
+    button { border: 1px solid transparent; border-radius: 10px; font-weight: 650; }
     .seg-btn { flex: 1; padding: 8px 4px; color: var(--muted); background: transparent; }
-    .seg-btn { border-radius: 0; }
-    .seg-btn.active { color: var(--pine); background: var(--soft); border-bottom: 3px solid var(--pine); font-weight: 750; }
+    .seg-btn.active { color: var(--pine); background: var(--selection); border-color: var(--outline); box-shadow: 0 1px 3px var(--shadow); font-weight: 750; }
     .primary-btn { background: var(--pine); color: var(--on-pine); }
     .field { margin-bottom: 16px; }
     label, .field-label { display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 600; color: var(--ink); }
     label i { display:none; }
-    input, select, textarea { width: 100%; min-width: 0; height: 44px; padding: 9px 11px; background: var(--paper); border: 1px solid var(--control); border-radius: 4px; color: var(--ink); }
+    input, select, textarea { width: 100%; min-width: 0; height: 44px; padding: 9px 11px; background: var(--soft); border: 1px solid var(--control); border-radius: 10px; color: var(--ink); }
     input::placeholder { color: var(--placeholder); font-weight: 400; }
     :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-    select:disabled { opacity: 1; color: var(--muted); background: var(--soft); cursor: default; }
+    select:disabled { opacity: 1; color: var(--muted); background: var(--paper); cursor: default; }
     .check-line:has(input:disabled) { color: var(--muted); cursor: default; }
     .name-row { display:grid; grid-template-columns: minmax(0,1fr) 6.2em; gap: 6px; }
     .hint-tag { align-self: end; color: var(--muted); font-size: .85rem; }
@@ -120,7 +109,7 @@
     .outline-btn, .copy-btn, .delete-btn, .ghost-btn { color: var(--pine); border-color: var(--outline); background: var(--paper); padding: 9px 12px; }
     .outline-btn, .delete-btn, .copy-btn { flex: none; font-size: .86rem; }
     .remove-event, .delete-btn { color: var(--muted); }
-    .schedule-box, .overlap-card, .result-box { margin: 10px 0; padding: 16px; border-radius: 5px; border: 1px solid var(--line); background: var(--soft); }
+    .schedule-box, .overlap-card, .result-box { margin: 10px 0; padding: 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--soft); }
     .schedule-box .inline-2 { margin: 12px 0 3px; }
     .overlap-top { margin: 12px 0; }
     .overlap-card .field:last-child { margin-bottom: 0; }
@@ -144,19 +133,22 @@
     .badge-chip { padding: 3px 6px; border-radius: 4px; background: var(--chip); }
     .result-box.success { border-left: 3px solid var(--pine); }
     .result-text, .auto-hall-text { margin:0; font: inherit; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; }
-    details.card summary { color: var(--pine); }
+    details.card summary { color: var(--ink); }
+    details.card[open] summary { padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+    details.card summary::marker { color: var(--pine); }
     #vehicleForm { margin-top:20px; }
     #loadNews { margin:16px 0; }
     #vehicleForm button, #tripField { grid-column: 1/-1; }
     #vehicleResult .copy-btn { display:block; margin:0 0 12px auto; }
     #resultSection { min-width: 0; }
     #resultSection > h2 { margin-bottom: 12px; }
+    #resultSection .ghost-btn { background: var(--soft); border-color: var(--line); }
     .preview-status { color: var(--muted); margin: 0 0 12px; line-height: 1.55; }
     #resultSection .result-text { font-size: 1rem; line-height: 1.75; }
     #resultSection .preview-draft { border: 1px dashed var(--control); padding: 12px; border-radius: 4px; }
     @media (min-width: 1000px) {
       .app-shell { display: block; width: min(calc(100% - 64px), 1240px); margin-top: 32px; }
-      .masthead { position: static; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; padding-bottom: 24px; }
+      .masthead { position: static; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; padding-bottom: 0; }
       .masthead h1 { font-size: clamp(1.75rem, 3vw, 2.65rem); margin-right: auto; }
       .masthead h1 span { display: inline; }
       .task-links { display: flex; margin: 0; }
@@ -170,15 +162,14 @@
     @media (max-width: 880px) {
       .app-shell { display:block; width:min(calc(100% - 48px), 700px); margin:28px auto 48px; }
       .masthead { position:static; margin-bottom:16px; padding:18px 0 0; }
-      .task-links { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top:18px; }
       .task-links a { font-size:.88rem; gap:4px; padding-inline:8px; }
       h1 span { display:inline; }
     }
     @media (max-width: 580px) {
       .app-shell { width: calc(100% - 24px); margin:20px auto 32px; }
-      .masthead { padding:16px 0 0; }
+      .masthead { padding:6px 0 0; }
       h1 { font-size:clamp(2.15rem, 8.7vw, 3rem); }
-      .card { padding:20px 16px; }
+      .card { padding:20px 16px; border-radius:18px; }
       .person-wrap, #vehicleForm { grid-template-columns: minmax(0,1fr); }
       .top-fields { gap:10px; }
       .schedule-box, .overlap-card { padding:12px; }
