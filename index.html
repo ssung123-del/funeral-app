@@ -571,10 +571,18 @@
       row.querySelector(".change-kind").hidden = !locked;
     }
 
+    function isLocalCeremony(kind) {
+      return kind === "입관" || kind === "발인";
+    }
+
     function refreshScheduleTime(row, individual) {
       const time = row.querySelector(".event-time");
       time.hidden = individual && row.querySelector(".kind").value === "발인";
       time.disabled = time.hidden;
+      const departureOption = row.querySelector(".news-departure-option");
+      if (departureOption) {
+        departureOption.hidden = individual || !isLocalCeremony(row.querySelector(".kind").value);
+      }
     }
 
     function addSchedule(container, data = {}) {
@@ -591,7 +599,8 @@
         <div class="row inline-2">
           <label>날짜<input type="date" aria-label="일정 날짜"></label>
           <label>시간<input type="text" class="event-time" aria-label="일정 시간 직접 입력 (선택)" placeholder="오후 2시 30분"></label>
-        </div>`;
+        </div>
+        ${container === detailSchedules ? '<label class="check-line news-departure-option" hidden><input type="checkbox"> 교회출발 표기</label>' : ""}`;
       row.querySelector(".kind").value = data.kind || "위로";
       row.querySelector("[type=date]").value = data.date || "";
       row.querySelector(".event-time").value = formatTimeLong(parseTime(data.time));
@@ -618,7 +627,9 @@
         const time = isIndividualVisit(container) && kind === "발인" ? "" : normalizeTime(row.querySelector(".event-time").value, kind);
         if (!date && !time) continue;
         if (!date) throw new Error(kind + " 날짜를 입력해 주세요.");
-        const depart = !isIndividualVisit(container) && Boolean(time);
+        const includeDeparture = container !== detailSchedules || !isLocalCeremony(kind) ||
+          row.querySelector(".news-departure-option input").checked;
+        const depart = !isIndividualVisit(container) && Boolean(time) && includeDeparture;
         events.push({ kind, date, time, depart });
       }
       const order = ["위로", "입관", "천국환송", "발인"];
@@ -718,6 +729,15 @@
       }
     }
 
+    function fillNewsSchedules(events, individual) {
+      detailSchedules.replaceChildren();
+      for (const event of events) addSchedule(detailSchedules, event);
+      if (!events.length && !individual) addSchedule(detailSchedules, { kind: "위로" });
+      for (const kind of ["입관", "발인"]) {
+        if (!events.some(event => event.kind === kind)) addSchedule(detailSchedules, { kind });
+      }
+    }
+
     function loadNews(force = false) {
       if (newsEdited && !force) return;
       try {
@@ -726,16 +746,14 @@
         if (!force && source === newsSource) return;
         els.step2Header.value = data.heading;
         detailVisit.checked = data.individual;
-        detailSchedules.replaceChildren();
-        if (data.events.length) data.events.forEach(event => addSchedule(detailSchedules, event));
-        else addSchedule(detailSchedules, { kind: data.individual ? "발인" : "위로" });
+        fillNewsSchedules(data.events, data.individual);
         els.newsHall.value = data.funeralHall;
         els.step2OutputWrap.classList.add("hidden");
         newsSource = source;
         newsEdited = false;
       } catch (error) {
         if (force) alert(error.message);
-        if (!detailSchedules.children.length) addSchedule(detailSchedules);
+        if (!detailSchedules.children.length) fillNewsSchedules([], detailVisit.checked);
       }
     }
 
