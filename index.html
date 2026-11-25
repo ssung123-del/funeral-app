@@ -4,68 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>장례 안내 문자 생성기</title>
-  <script>
-    const themeKey = "funeral-app-theme";
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
-    let themeChoice = "system";
-    try {
-      const saved = localStorage.getItem(themeKey);
-      if (saved === "light" || saved === "dark") themeChoice = saved;
-    } catch { /* The setting still works for this visit when storage is unavailable. */ }
-
-    function applyTheme() {
-      document.documentElement.dataset.theme = themeChoice === "system"
-        ? (systemDark.matches ? "dark" : "light") : themeChoice;
-    }
-    applyTheme();
-    systemDark.addEventListener("change", applyTheme);
-  </script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
   <style>
     :root {
       color-scheme: light;
-      --canvas: #f2f2f7;
-      --paper: #ffffff;
-      --soft: #f1f3f8;
+      --canvas: #eeece5;
+      --paper: #faf8f2;
+      --soft: #f1eee6;
       --ink: #16171b;
       --muted: #535560;
-      --line: #dedfe7;
-      --control: #aeb3c0;
+      --line: #d9d4c9;
+      --control: #a6a195;
       --outline: #b6c2d6;
       --placeholder: #626674;
       --pine: #005ac9;
-      --on-pine: #ffffff;
+      --on-pine: #faf8f2;
       --focus: #005ac9;
       --chip: #dceaff;
       --shadow: #17264713;
-      --selection: #ffffff;
+      --selection: #e8eef8;
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, sans-serif;
       color: var(--ink);
       background: var(--canvas);
     }
-    :root[data-theme="dark"] {
-      color-scheme: dark;
-      --canvas: #0e0f12;
-      --paper: #1c1e24;
-      --soft: #252832;
-      --ink: #f7f8fc;
-      --muted: #c8cbd6;
-      --line: #424652;
-      --control: #858da0;
-      --outline: #81899a;
-      --placeholder: #bdcbd1;
-      --pine: #91c3ff;
-      --on-pine: #102640;
-      --focus: #acd3ff;
-      --chip: #2b4160;
-      --shadow: #00000040;
-      --selection: #384153;
-    }
-    :root[data-theme="dark"] input::placeholder { opacity: 1; }
-    .theme-picker { display:flex; align-items:center; gap:10px; margin-top:16px; }
-    .theme-picker label { color:var(--muted); margin:0; font-weight:500; }
-    .theme-picker select { width:auto; height:38px; font-size:.9rem; }
     * { box-sizing: border-box; }
     body { margin: 0; }
     .app-shell { width: min(calc(100% - 48px), 700px); margin: 28px auto 48px; }
@@ -96,11 +58,13 @@
     label, .field-label { display: block; margin-bottom: 6px; font-size: .875rem; font-weight: 600; color: var(--ink); }
     label i { display:none; }
     input, select, textarea { width: 100%; min-width: 0; height: 44px; padding: 9px 11px; background: var(--soft); border: 1px solid var(--control); border-radius: 10px; color: var(--ink); }
+    select { appearance: auto; }
+    input[type="date"] { display: block; }
     input::placeholder { color: var(--placeholder); font-weight: 400; }
     :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
     select:disabled { opacity: 1; color: var(--muted); background: var(--paper); cursor: default; }
     .check-line:has(input:disabled) { color: var(--muted); cursor: default; }
-    .name-row { display:grid; grid-template-columns: minmax(0,1fr) 6.2em; gap: 6px; }
+    .name-row { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; }
     .hint-tag { align-self: end; color: var(--muted); font-size: .85rem; }
     .family-actions { margin-top: 16px; }
     .overlap-head, .overlap-top, .result-meta, .result-headline, .schedule-title { display:flex; align-items:center; gap: 8px; }
@@ -153,7 +117,6 @@
       .masthead h1 span { display: inline; }
       .task-links { display: flex; margin: 0; }
       .task-links a { gap: 10px; }
-      .theme-picker { margin: 0; }
       .workspace { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); column-gap: 20px; align-items: start; }
       .workspace > * { grid-column: 1; }
       #resultSection { grid-column: 2; grid-row: 1 / span 3; position: sticky; top: 16px; max-height: calc(100dvh - 32px); overflow: auto; padding: 24px; }
@@ -192,15 +155,6 @@
         <a href="#step2Section">교우소식</a>
         <a href="#vehicle">차량신청</a>
       </nav>
-      <div class="theme-picker">
-        <label for="themeChoice">화면 모드</label>
-        <select id="themeChoice">
-          <option value="system">기기 설정</option>
-          <option value="light">밝게</option>
-          <option value="dark">어둡게</option>
-        </select>
-      </div>
-
     </header>
     <div class="workspace">
     <section class="card" id="funeral">
@@ -753,8 +707,9 @@
         if (explicit) alert(error.message);
 
         try {
-          const { heading, individual, events, funeralHall } = readFuneralInfo(false);
-          const lines = [heading, individual ? "개별조문" : "", ...scheduleParts(events, false), funeralHall];
+          const { heading, prefix, lead, relatives, individual, events, funeralHall } = readFuneralInfo(false);
+          const titleParts = heading ? [prefix + lead + "소천", ...relatives] : [];
+          const lines = [...titleParts, individual ? "개별조문" : "", ...scheduleParts(events, false), funeralHall];
           draft.textContent = lines.filter(Boolean).join("/");
           draft.hidden = !draft.textContent;
         } catch {
@@ -990,13 +945,6 @@
       toggleMode("district");
       bindEvents();
       bindVehicleForm();
-      const themeSelect = document.getElementById("themeChoice");
-      themeSelect.value = themeChoice;
-      themeSelect.addEventListener("change", () => {
-        themeChoice = themeSelect.value;
-        applyTheme();
-        try { localStorage.setItem(themeKey, themeChoice); } catch { /* Session-only choice. */ }
-      });
       function openLinkedPanel(hash) {
         if (hash === "#step2Section" || hash === "#vehicle") {
           document.getElementById(hash.slice(1)).open = true;
